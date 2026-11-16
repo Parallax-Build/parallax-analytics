@@ -57,6 +57,7 @@ processors:
           - 'replace_pattern(attributes["parallax.route"], "/[^/]{65,}", "/{other}")'
           - 'set(attributes["parallax.status"], attributes["http.response.status_code"]) where attributes["http.response.status_code"] != nil'
           - 'set(attributes["parallax.status"], attributes["http.status_code"]) where attributes["parallax.status"] == nil and attributes["http.status_code"] != nil'
+          - 'set(attributes["parallax.route"], "/{not-found}") where attributes["http.route"] == nil and (attributes["parallax.status"] == 404 or attributes["parallax.status"] == "404")'
           - 'set(attributes["parallax.method"], attributes["http.request.method"]) where attributes["http.request.method"] != nil'
           - 'set(attributes["parallax.method"], attributes["http.method"]) where attributes["parallax.method"] == nil and attributes["http.method"] != nil'
           - 'keep_keys(attributes, ["parallax.route", "parallax.status", "parallax.method"])'

@@ -14,7 +14,7 @@ const GATEWAY = process.env["SMOKE_GATEWAY_URL"] ?? "http://localhost:8080";
 const CORE = process.env["SMOKE_CORE_URL"] ?? "http://localhost:8081";
 const EDGE = process.env["SMOKE_EDGE_URL"] ?? "http://localhost:3000";
 const API = process.env["SMOKE_API_URL"] ?? "http://localhost:8091";
-const ORIGIN = "http://localhost:8090";
+const ORIGIN = process.env["SMOKE_SITE_URL"] ?? "http://localhost:8090";
 const operatorKey = process.env["PARALLAX_OPERATOR_KEY"] ?? "";
 const UA = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36";
 
@@ -57,7 +57,7 @@ async function main(): Promise<void> {
   assert.match(html, /integrity="sha384-/, "tracker tag should carry an integrity hash");
   step("demo site embeds the pinned tracker with an integrity hash");
 
-  const event = { type: "event", payload: { website, hostname: "localhost", url: "/smoke", title: "Smoke" } };
+  const event = { type: "event", payload: { website, hostname: new URL(ORIGIN).hostname, url: "/smoke", title: "Smoke" } };
 
   let reply = await post(`${GATEWAY}/e`, event);
   assert.equal(reply.status, 403);

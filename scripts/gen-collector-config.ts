@@ -25,6 +25,10 @@ export function render(): string {
     ...toOttlStatements(ROUTE),
     `set(attributes["parallax.status"], attributes["http.response.status_code"]) where attributes["http.response.status_code"] != nil`,
     `set(attributes["parallax.status"], attributes["http.status_code"]) where attributes["parallax.status"] == nil and attributes["http.status_code"] != nil`,
+    // A 404 with no route template is a path the API does not have. Public APIs
+    // get a constant stream of these from scanners (/.env, /wp-login.php ...);
+    // storing each one would let anyone inflate a tenant's route list.
+    `set(attributes["${ROUTE}"], "/{not-found}") where attributes["http.route"] == nil and (attributes["parallax.status"] == 404 or attributes["parallax.status"] == "404")`,
     `set(attributes["parallax.method"], attributes["http.request.method"]) where attributes["http.request.method"] != nil`,
     `set(attributes["parallax.method"], attributes["http.method"]) where attributes["parallax.method"] == nil and attributes["http.method"] != nil`,
     // Everything else on the span is dropped here, before any metric exists.
