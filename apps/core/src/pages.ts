@@ -22,6 +22,7 @@ function originOf(host: string | undefined, fallback: string): string {
 interface LandingConfig {
   ingestUrl: string;
   apiDemoUrl: string;
+  dashboardUrl: string;
 }
 
 let cached: { html: string; at: number } | undefined;
@@ -48,6 +49,8 @@ export async function renderLanding(pool: pg.Pool, config: LandingConfig): Promi
     DEMO_ORIGIN: esc(originOf(wallet?.domains[0], "http://localhost:8090")),
     EXPLORER_ORIGIN: esc(originOf(explorer?.domains[0], "http://localhost:8092")),
     DEMO_WEBSITE: esc(wallet?.website_id ?? "WEBSITE_ID"),
+    DASHBOARD: esc(`${config.dashboardUrl}/share/demowallet`),
+    DASHBOARD_SELF: esc(`${config.dashboardUrl}/share/parallaxsite`),
   };
   const html = template.replace(/\{\{([A-Z_]+)\}\}/g, (match, key: string) => values[key] ?? match);
   cached = { html, at: Date.now() };

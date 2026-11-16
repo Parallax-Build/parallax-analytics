@@ -5,14 +5,16 @@
     "domains": [
       "demo.parallax.agentposhq.com"
     ],
-    "apiKeyEnv": "PARALLAX_DEMO_API_KEY"
+    "apiKeyEnv": "PARALLAX_DEMO_API_KEY",
+    "publicDashboard": "demowallet"
   },
   {
     "id": "demo-explorer",
     "name": "Demo Explorer",
     "domains": [
       "explorer-demo.parallax.agentposhq.com"
-    ]
+    ],
+    "publicDashboard": "demoexplorer"
   },
   {
     "id": "agentpos",
@@ -27,6 +29,7 @@
     "name": "Parallax (this site)",
     "domains": [
       "parallax.agentposhq.com"
-    ]
+    ],
+    "publicDashboard": "parallaxsite"
   }
 ]

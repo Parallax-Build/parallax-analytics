@@ -15,6 +15,21 @@ interface TenantSpec {
   domains: string[];
   /** Name of the environment variable that holds the OTLP key, if the project has an API. */
   apiKeyEnv?: string;
+  /** Slug of a public, read-only Umami dashboard for this project (8 to 50 letters or digits). */
+  publicDashboard?: string;
+}
+
+async function ensureShare(token: string, spec: TenantSpec, websiteId: string): Promise<void> {
+  if (!spec.publicDashboard) return;
+  const existing = await fetch(`${umamiUrl}/api/share/${spec.publicDashboard}`);
+  if (existing.ok) return;
+  const response = await fetch(`${umamiUrl}/api/share`, {
+    method: "POST",
+    headers: { "content-type": "application/json", authorization: `Bearer ${token}` },
+    body: JSON.stringify({ entityId: websiteId, shareType: 1, name: spec.name, slug: spec.publicDashboard, parameters: {} }),
+  });
+  if (!response.ok) throw new Error(`could not share the dashboard of ${spec.id}: ${response.status} ${await response.text()}`);
+  console.log(`${spec.id}: public dashboard at /share/${spec.publicDashboard}`);
 }
 
 function env(name: string, fallback?: string): string {
@@ -98,6 +113,7 @@ async function main(): Promise<void> {
          on conflict (id) do update set name = excluded.name, domains = excluded.domains, api_key_hash = excluded.api_key_hash`,
         [spec.id, spec.name, websiteId, spec.domains, keyHash],
       );
+      await ensureShare(token, spec, websiteId);
       console.log(`enrolled ${spec.id}: website ${websiteId}, domains ${spec.domains.join(", ")}${keyHash ? ", OTLP key set" : ""}`);
     }
   } finally {

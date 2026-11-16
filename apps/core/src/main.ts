@@ -20,6 +20,7 @@ const operatorKey = env("PARALLAX_OPERATOR_KEY");
 const operatorPublic = env("PARALLAX_OPERATOR_PUBLIC", "false") === "true";
 const port = Number(env("PORT", "8081"));
 const ingestUrl = env("PARALLAX_PUBLIC_INGEST_URL", "http://localhost:8080").replace(/\/$/, "");
+const dashboardUrl = env("PARALLAX_PUBLIC_DASHBOARD_URL", "http://localhost:3000").replace(/\/$/, "");
 const apiDemoUrl = env("PARALLAX_PUBLIC_API_DEMO_URL", "http://localhost:8091").replace(/\/$/, "");
 const pool = new pg.Pool({ connectionString: env("DATABASE_URL"), max: 6 });
 const writer = new ApiWriter(pool);
@@ -122,7 +123,7 @@ async function handle(req: IncomingMessage, res: ServerResponse): Promise<void> 
 
   if (req.method === "GET" && path === "/") {
     res.writeHead(200, { "content-type": "text/html; charset=utf-8", "cache-control": "no-store" });
-    res.end(await renderLanding(pool, { ingestUrl, apiDemoUrl }));
+    res.end(await renderLanding(pool, { ingestUrl, apiDemoUrl, dashboardUrl }));
     return;
   }
   if (req.method === "GET" && path === "/map") {

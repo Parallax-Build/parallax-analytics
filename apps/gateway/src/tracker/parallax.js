@@ -86,7 +86,7 @@
       }
       var result = await response.json();
       if (result && result.cache) cache = result.cache;
-    } catch (e) {
+    } catch {
       /* Analytics must never break the page. */
     }
   }
