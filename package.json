@@ -1,0 +1,29 @@
+{
+  "name": "parallax-analytics",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Privacy-first web and API analytics for Stellar ecosystem projects. Built on Umami and OpenTelemetry.",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "packageManager": "pnpm@11.23.0",
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "gen:collector": "node scripts/gen-collector-config.ts",
+    "seed": "node apps/core/src/seed.ts",
+    "smoke": "node --env-file=.env scripts/smoke.ts",
+    "sri": "node scripts/sri.ts"
+  },
+  "dependencies": {
+    "pg": "^8.13.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "@types/pg": "^8.11.0",
+    "typescript": "^5.8.0",
+    "vitest": "^3.2.0"
+  }
+}

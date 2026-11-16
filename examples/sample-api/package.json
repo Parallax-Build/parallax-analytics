@@ -1,0 +1,16 @@
+{
+  "name": "@parallax/sample-api",
+  "version": "0.1.0",
+  "private": true,
+  "license": "MIT",
+  "description": "A Horizon-shaped sample API that dual-exports OpenTelemetry traces to Parallax.",
+  "dependencies": {
+    "@opentelemetry/api": "^1.9.0",
+    "@opentelemetry/exporter-trace-otlp-http": "^0.57.0",
+    "@opentelemetry/instrumentation": "^0.57.0",
+    "@opentelemetry/instrumentation-http": "^0.57.0",
+    "@opentelemetry/resources": "^1.30.0",
+    "@opentelemetry/sdk-trace-base": "^1.30.0",
+    "@opentelemetry/sdk-trace-node": "^1.30.0"
+  }
+}

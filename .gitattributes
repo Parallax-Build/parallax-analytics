@@ -1,0 +1,3 @@
+# The tracker's integrity hash and the generated Collector config depend on
+# exact bytes, so line endings must not vary by platform.
+* text=auto eol=lf

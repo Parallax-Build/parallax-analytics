@@ -1,0 +1,60 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm test
+      - run: pnpm typecheck
+      - name: Collector config is generated from the path rules
+        run: node scripts/gen-collector-config.ts --check
+      - name: Collector accepts the config
+        run: |
+          docker run --rm \
+            -e PARALLAX_WRITER_URL=http://core:8081/internal/otlp -e PARALLAX_INTERNAL_KEY=x \
+            -v "$PWD/deploy/collector/config.yaml:/etc/otelcol/config.yaml:ro" \
+            otel/opentelemetry-collector-contrib:0.164.0 validate --config=/etc/otelcol/config.yaml
+
+  end-to-end:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Throwaway secrets
+        run: |
+          r() { openssl rand -hex 24; }
+          cat > .env <<EOF
+          POSTGRES_PASSWORD=$(r)
+          UMAMI_APP_SECRET=$(r)
+          UMAMI_ADMIN_PASSWORD=$(r)
+          PARALLAX_TOKEN_SECRET=$(r)
+          PARALLAX_INTERNAL_KEY=$(r)
+          PARALLAX_OPERATOR_KEY=$(r)
+          PARALLAX_OPERATOR_PUBLIC=false
+          PARALLAX_DEMO_API_KEY=plx_$(r)
+          EOF
+      - run: docker compose --profile demo up -d --build --wait --wait-timeout 300
+      - run: node --env-file=.env scripts/smoke.ts
+      - if: failure()
+        run: docker compose --profile demo logs --tail 80

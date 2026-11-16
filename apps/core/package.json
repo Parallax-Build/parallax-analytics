@@ -1,0 +1,15 @@
+{
+  "name": "@parallax/core",
+  "version": "0.1.0",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "start": "node src/main.ts",
+    "seed": "node src/seed.ts"
+  },
+  "dependencies": {
+    "@parallax/path-rules": "workspace:*",
+    "pg": "^8.13.0"
+  }
+}

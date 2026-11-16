@@ -1,0 +1,383 @@
+<title>Parallax Infrastructure Map</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one wide left-to-right flow diagram as the page's subject, then three ledgers (kept, never kept, infrastructure) and the commitments. */
+:root {
+  --bg: #F5F6F9; --surface: #FFFFFF; --zone: #ECEEF4; --fg: #161B2E; --muted: #5B6278;
+  --line: #C3C8D6; --keep: #0B6B83; --drop: #B23A30;
+  --display: "Space Grotesk", "Segoe UI", system-ui, sans-serif;
+  --body: "Inter", "Segoe UI", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0F1320; --surface: #182033; --zone: #131A2B; --fg: #E8EBF3; --muted: #9AA3BA;
+  --line: #34405C; --keep: #5CC4DC; --drop: #F08A7E; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #0F1320; --surface: #182033; --zone: #131A2B; --fg: #E8EBF3; --muted: #9AA3BA;
+  --line: #34405C; --keep: #5CC4DC; --drop: #F08A7E; color-scheme: dark }
+
+body { background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 15px; line-height: 1.55; }
+.wrap { max-width: 1240px; margin: 0 auto; padding-block: 28px 48px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: flex; flex-direction: column; gap: 28px; }
+header { display: flex; flex-wrap: wrap; gap: 16px 32px; align-items: flex-end; justify-content: space-between; }
+.head-text { min-width: 0; flex: 1 1 420px; }
+.eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin: 0 0 8px; }
+h1 { font-family: var(--display); font-weight: 600; font-size: clamp(26px, 4vw, 38px); line-height: 1.12; margin: 0; text-wrap: balance; max-width: 22ch; }
+.lede { margin: 12px 0 0; color: var(--muted); max-width: 65ch; }
+.langs { display: flex; gap: 4px; border: 1px solid var(--line); border-radius: 999px; padding: 3px; background: var(--surface); }
+.langs button { font: 500 13px var(--body); color: var(--muted); background: none; border: 0; border-radius: 999px; padding: 6px 14px; cursor: pointer; }
+.langs button[aria-pressed="true"] { background: var(--fg); color: var(--bg); }
+.langs button:focus-visible { outline: 2px solid var(--keep); outline-offset: 2px; }
+
+figure { margin: 0; }
+.scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+.scroll svg { display: block; width: 100%; min-width: 980px; height: auto; }
+figcaption { margin-top: 10px; color: var(--muted); font-size: 13.5px; max-width: 80ch; }
+.key { display: flex; flex-wrap: wrap; gap: 6px 22px; margin-top: 10px; font-size: 13px; color: var(--muted); }
+.key span { display: inline-flex; align-items: center; gap: 8px; }
+.key i { width: 22px; height: 0; border-top: 2px solid var(--fg); display: inline-block; }
+.key i.k { border-color: var(--keep); } .key i.d { border-color: var(--drop); border-top-style: dashed; }
+
+/* svg */
+svg text { font-family: var(--body); fill: var(--fg); }
+.zone { fill: var(--zone); stroke: var(--line); stroke-dasharray: 5 4; }
+.zt { font-family: var(--mono); font-size: 11px; letter-spacing: .08em; fill: var(--muted); }
+.n rect { fill: var(--surface); stroke: var(--line); stroke-width: 1.2; }
+.n.db rect { stroke: var(--keep); stroke-width: 1.8; }
+.n.who rect { fill: none; stroke: var(--fg); }
+.nt { font-size: 13px; font-weight: 600; }
+.ns { font-size: 10.5px; fill: var(--muted); }
+.e { stroke: var(--fg); stroke-width: 1.4; fill: none; }
+.e.k { stroke: var(--keep); stroke-width: 2; }
+.e.d { stroke: var(--drop); stroke-dasharray: 4 3; }
+.ah { fill: var(--fg); } .ah.k { fill: var(--keep); }
+.el { font-size: 11px; fill: var(--muted); stroke: var(--bg); stroke-width: 4; paint-order: stroke; stroke-linejoin: round; }
+.el.k { fill: var(--keep); font-weight: 600; }
+.dl { font-size: 11px; font-weight: 600; fill: var(--drop); }
+.fn { font-size: 10.5px; fill: var(--muted); }
+
+.ledgers { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+.ledger { min-width: 0; border-top: 3px solid var(--line); padding-top: 14px; }
+.ledger.k { border-color: var(--keep); } .ledger.d { border-color: var(--drop); }
+h2 { font-family: var(--display); font-weight: 600; font-size: 18px; margin: 0 0 10px; }
+.ledger ul { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 8px; }
+.path { font-family: var(--mono); font-size: 12.5px; background: var(--zone); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; overflow-x: auto; white-space: nowrap; }
+.path .x { color: var(--drop); text-decoration: line-through; } .path .y { color: var(--keep); font-weight: 500; }
+.path-label { font-size: 13px; color: var(--muted); margin: 0 0 6px; }
+.tbl { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+th, td { text-align: left; padding: 9px 12px 9px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-weight: 500; color: var(--muted); font-size: 13px; }
+td:last-child { font-weight: 600; }
+footer { color: var(--muted); font-size: 13px; border-top: 1px solid var(--line); padding-top: 16px; display: flex; flex-direction: column; gap: 4px; }
+footer a { color: var(--keep); }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="head-text">
+      <p class="eyebrow" data-i="eyebrow"></p>
+      <h1 data-i="h1"></h1>
+      <p class="lede" data-i="lede"></p>
+    </div>
+    <div class="langs" role="group" aria-label="Language">
+      <button type="button" id="lang-en" data-lang="en">English</button>
+      <button type="button" id="lang-es" data-lang="es">Español</button>
+      <button type="button" id="lang-pt" data-lang="pt">Português</button>
+    </div>
+  </header>
+
+  <figure>
+    <div class="scroll" id="diagram"></div>
+    <div class="key">
+      <span><i></i><b data-i="keyFlow" style="font-weight:400"></b></span>
+      <span><i class="k"></i><b data-i="keyKeep" style="font-weight:400"></b></span>
+      <span><i class="d"></i><b data-i="keyDrop" style="font-weight:400"></b></span>
+    </div>
+    <figcaption data-i="caption"></figcaption>
+  </figure>
+
+  <section>
+    <p class="path-label" data-i="pathLabel"></p>
+    <div class="path">GET /accounts/<span class="x">GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN</span>/payments &nbsp;→&nbsp; GET /accounts/<span class="y">{account}</span>/payments</div>
+  </section>
+
+  <section class="ledgers">
+    <div class="ledger k"><h2 data-i="keptT"></h2><ul id="kept"></ul></div>
+    <div class="ledger d"><h2 data-i="neverT"></h2><ul id="never"></ul></div>
+    <div class="ledger"><h2 data-i="infraT"></h2><ul id="infra"></ul></div>
+  </section>
+
+  <section>
+    <h2 data-i="slaT"></h2>
+    <div class="tbl"><table><tbody id="sla"></tbody></table></div>
+  </section>
+
+  <footer>
+    <span data-i="foot1"></span>
+    <span><span data-i="foot2"></span> <a href="https://github.com/Parallax-Build/parallax-analytics">github.com/Parallax-Build/parallax-analytics</a></span>
+  </footer>
+</div>
+
+<script>
+var T = {
+en: {
+  eyebrow: "Parallax · infrastructure map · SCF #46 RFP: Web and API Analytics",
+  h1: "Where the data goes, and what is never stored",
+  lede: "One shared analytics service for projects building on Stellar. Websites and APIs send events in; only aggregate numbers reach the database. This is the proposed design.",
+  keyFlow: "data flow", keyKeep: "the only paths into storage", keyDrop: "discarded on arrival",
+  caption: "A website sends page events to the ingest gateway; an API adds the collector as a second OpenTelemetry destination and keeps its own monitoring. Both paths end in one PostgreSQL database in the EU, where each project can read only its own rows. SCF operators see all projects side by side.",
+  pathLabel: "Path normalization at the collector: the Stellar address never reaches the database.",
+  zTenant: "TENANT PROJECT", zIngest: "INGEST · 2 EU NODES", zCore: "CORE · EU",
+  web: "Website", web1: "tracker pinned by version", web2: "no cookies",
+  api: "API", api1: "OpenTelemetry SDK", api2: "keeps its own monitoring",
+  apm: "Tenant's own APM", apm1: "unchanged",
+  gw: "Ingest gateway", gw1: "origin check · browser token", gw2: "traffic classification",
+  col: "OpenTelemetry Collector", col1: "derives request metrics", col2: "normalizes Stellar paths",
+  um: "Umami", um1: "web analytics", um2: "tenant dashboards",
+  pg: "PostgreSQL", pg1: "row-level security", pg2: "aggregates: 36 months", pg3: "minute data: 14 days",
+  ru: "Rollup worker", ru1: "minute → hour → day",
+  oc: "Operator console", oc1: "all projects",
+  ma: "Metrics API", ma1: "read-only, with keys",
+  bk: "Backups (EU)", bk1: "point-in-time recovery",
+  tt: "Tenant team", tt1: "own dashboard",
+  so: "SCF operators", so1: "cross-project view",
+  dt: "Other SCF tools", dt1: "via API key",
+  ePage: "page events", eAcc: "accepted events", eDual: "OTLP dual export", eAgg: "aggregates only",
+  eOtlp: "OTLP", eWrites: "writes", eReads: "reads", eRoll: "rolls up", eOwn: "own data only",
+  dIp: "✕ IP address discarded", dTr: "✕ traces, spans, logs dropped",
+  dns: "health-checked DNS, automatic failover",
+  keptT: "What is stored", neverT: "What is never stored", infraT: "Infrastructure",
+  kept: ["Page views, unique visitors, referrers, session duration, bounce rate, country, device and browser.",
+         "API request counts, status codes and latency per normalized route.",
+         "A traffic class on every event: confident, low confidence or automated. Operators see the ratio per project.",
+         "Hourly and daily aggregates for 36 months; minute data for 14 days."],
+  never: ["IP addresses. The last octet is removed, the country is looked up, and the address is discarded.",
+          "Cookies, or any identifier that follows a visitor from one project to another.",
+          "Traces, spans and logs. The collector drops them; they are never written to disk.",
+          "Raw API paths. Stellar addresses, hashes and IDs are replaced by placeholders."],
+  infra: ["European Union only, backups included.",
+          "Two ingest nodes behind health-checked DNS: losing one does not stop collection.",
+          "One PostgreSQL with row-level security, continuous backups and point-in-time recovery.",
+          "Everything as code in one MIT monorepo: OpenTofu and Docker Compose.",
+          "Umami and the collector pinned by digest. The tracker is served at immutable versioned URLs with an integrity hash."],
+  slaT: "Commitments for the 12 months of operation",
+  sla: [["Ingestion availability", "99.95% monthly, designed for 99.99%"],
+        ["Dashboard availability", "99.90%"],
+        ["Critical and high vulnerabilities", "patched within 24 hours"],
+        ["Support", "answered in 3 business days, resolved in 10"],
+        ["Capacity", "1,000,000 API requests per day (about 12 per second)"],
+        ["Cost to projects", "zero, always"]],
+  foot1: "Proposed design by Joaquín Farfán and Anael Casanova. Not yet in production.",
+  foot2: "Repository:"
+},
+es: {
+  eyebrow: "Parallax · mapa de infraestructura · SCF #46 RFP: Web and API Analytics",
+  h1: "A dónde van los datos y qué nunca se guarda",
+  lede: "Un servicio de analítica compartido para los proyectos que construyen sobre Stellar. Sitios web y APIs envían eventos; a la base de datos solo llegan números agregados. Este es el diseño propuesto.",
+  keyFlow: "flujo de datos", keyKeep: "los únicos caminos hacia el almacenamiento", keyDrop: "se descarta al llegar",
+  caption: "Un sitio web envía eventos de página a la puerta de ingesta; una API agrega el colector como segundo destino de OpenTelemetry y mantiene su propio monitoreo. Ambos caminos terminan en una sola base PostgreSQL en la UE, donde cada proyecto puede leer solo sus propias filas. Los operadores de SCF ven todos los proyectos lado a lado.",
+  pathLabel: "Normalización de rutas en el colector: la dirección Stellar nunca llega a la base de datos.",
+  zTenant: "PROYECTO (TENANT)", zIngest: "INGESTA · 2 NODOS UE", zCore: "NÚCLEO · UE",
+  web: "Sitio web", web1: "tracker fijado por versión", web2: "sin cookies",
+  api: "API", api1: "SDK de OpenTelemetry", api2: "mantiene su monitoreo",
+  apm: "APM propio del proyecto", apm1: "sin cambios",
+  gw: "Puerta de ingesta", gw1: "origen · token de navegador", gw2: "clasificación de tráfico",
+  col: "Colector OpenTelemetry", col1: "deriva métricas de requests", col2: "normaliza rutas Stellar",
+  um: "Umami", um1: "analítica web", um2: "dashboards por proyecto",
+  pg: "PostgreSQL", pg1: "seguridad por fila", pg2: "agregados: 36 meses", pg3: "minutos: 14 días",
+  ru: "Worker de agregación", ru1: "minuto → hora → día",
+  oc: "Consola de operador", oc1: "todos los proyectos",
+  ma: "API de métricas", ma1: "solo lectura, con claves",
+  bk: "Respaldos (UE)", bk1: "recuperación a un punto",
+  tt: "Equipo del proyecto", tt1: "su dashboard",
+  so: "Operadores SCF", so1: "vista global",
+  dt: "Otras herramientas", dt1: "con clave de API",
+  ePage: "eventos de página", eAcc: "eventos aceptados", eDual: "OTLP, doble envío", eAgg: "solo agregados",
+  eOtlp: "OTLP", eWrites: "escribe", eReads: "lee", eRoll: "agrega", eOwn: "solo sus datos",
+  dIp: "✕ dirección IP descartada", dTr: "✕ trazas, spans y logs descartados",
+  dns: "DNS con chequeo de salud, conmutación automática",
+  keptT: "Qué se guarda", neverT: "Qué nunca se guarda", infraT: "Infraestructura",
+  kept: ["Páginas vistas, visitantes únicos, referentes, duración de sesión, tasa de rebote, país, dispositivo y navegador.",
+         "Cantidad de requests de API, códigos de estado y latencia por ruta normalizada.",
+         "Una clase de tráfico en cada evento: confiable, baja confianza o automatizado. Los operadores ven la proporción por proyecto.",
+         "Agregados por hora y por día durante 36 meses; datos por minuto durante 14 días."],
+  never: ["Direcciones IP. Se elimina el último octeto, se consulta el país y la dirección se descarta.",
+          "Cookies, ni ningún identificador que siga a un visitante de un proyecto a otro.",
+          "Trazas, spans y logs. El colector los descarta; nunca se escriben en disco.",
+          "Rutas de API en bruto. Las direcciones Stellar, hashes e IDs se reemplazan por marcadores."],
+  infra: ["Solo Unión Europea, incluidos los respaldos.",
+          "Dos nodos de ingesta detrás de DNS con chequeo de salud: perder uno no detiene la recolección.",
+          "Un PostgreSQL con seguridad por fila, respaldos continuos y recuperación a un punto en el tiempo.",
+          "Todo como código en un solo monorepo MIT: OpenTofu y Docker Compose.",
+          "Umami y el colector fijados por digest. El tracker se sirve en URLs versionadas e inmutables, con hash de integridad."],
+  slaT: "Compromisos para los 12 meses de operación",
+  sla: [["Disponibilidad de la ingesta", "99,95% mensual, diseñada para 99,99%"],
+        ["Disponibilidad de los dashboards", "99,90%"],
+        ["Vulnerabilidades críticas y altas", "parchadas en 24 horas"],
+        ["Soporte", "respuesta en 3 días hábiles, resolución en 10"],
+        ["Capacidad", "1.000.000 de requests de API al día (cerca de 12 por segundo)"],
+        ["Costo para los proyectos", "cero, siempre"]],
+  foot1: "Diseño propuesto por Joaquín Farfán y Anael Casanova. Aún no está en producción.",
+  foot2: "Repositorio:"
+},
+pt: {
+  eyebrow: "Parallax · mapa de infraestrutura · SCF #46 RFP: Web and API Analytics",
+  h1: "Para onde vão os dados e o que nunca é armazenado",
+  lede: "Um serviço de analítica compartilhado para os projetos que constroem na Stellar. Sites e APIs enviam eventos; ao banco de dados chegam apenas números agregados. Este é o desenho proposto.",
+  keyFlow: "fluxo de dados", keyKeep: "os únicos caminhos até o armazenamento", keyDrop: "descartado na chegada",
+  caption: "Um site envia eventos de página ao gateway de ingestão; uma API adiciona o coletor como segundo destino do OpenTelemetry e mantém o próprio monitoramento. Os dois caminhos terminam em um único banco PostgreSQL na UE, onde cada projeto lê apenas as próprias linhas. Os operadores da SCF veem todos os projetos lado a lado.",
+  pathLabel: "Normalização de rotas no coletor: o endereço Stellar nunca chega ao banco de dados.",
+  zTenant: "PROJETO (TENANT)", zIngest: "INGESTÃO · 2 NÓS UE", zCore: "NÚCLEO · UE",
+  web: "Site", web1: "tracker fixado por versão", web2: "sem cookies",
+  api: "API", api1: "SDK do OpenTelemetry", api2: "mantém seu monitoramento",
+  apm: "APM próprio do projeto", apm1: "sem mudanças",
+  gw: "Gateway de ingestão", gw1: "origem · token do navegador", gw2: "classificação de tráfego",
+  col: "Coletor OpenTelemetry", col1: "deriva métricas de requisições", col2: "normaliza rotas Stellar",
+  um: "Umami", um1: "analítica web", um2: "dashboards por projeto",
+  pg: "PostgreSQL", pg1: "segurança por linha", pg2: "agregados: 36 meses", pg3: "minutos: 14 dias",
+  ru: "Worker de agregação", ru1: "minuto → hora → dia",
+  oc: "Console do operador", oc1: "todos os projetos",
+  ma: "API de métricas", ma1: "só leitura, com chaves",
+  bk: "Backups (UE)", bk1: "recuperação pontual",
+  tt: "Equipe do projeto", tt1: "seu dashboard",
+  so: "Operadores SCF", so1: "visão global",
+  dt: "Outras ferramentas", dt1: "com chave de API",
+  ePage: "eventos de página", eAcc: "eventos aceitos", eDual: "OTLP, envio duplo", eAgg: "só agregados",
+  eOtlp: "OTLP", eWrites: "grava", eReads: "lê", eRoll: "agrega", eOwn: "só seus dados",
+  dIp: "✕ endereço IP descartado", dTr: "✕ traces, spans e logs descartados",
+  dns: "DNS com verificação de saúde, failover automático",
+  keptT: "O que é armazenado", neverT: "O que nunca é armazenado", infraT: "Infraestrutura",
+  kept: ["Páginas vistas, visitantes únicos, referenciadores, duração da sessão, taxa de rejeição, país, dispositivo e navegador.",
+         "Contagem de requisições de API, códigos de status e latência por rota normalizada.",
+         "Uma classe de tráfego em cada evento: confiável, baixa confiança ou automatizado. Os operadores veem a proporção por projeto.",
+         "Agregados por hora e por dia durante 36 meses; dados por minuto durante 14 dias."],
+  never: ["Endereços IP. O último octeto é removido, o país é consultado e o endereço é descartado.",
+          "Cookies, ou qualquer identificador que siga um visitante de um projeto a outro.",
+          "Traces, spans e logs. O coletor os descarta; nunca são gravados em disco.",
+          "Rotas de API em bruto. Endereços Stellar, hashes e IDs são substituídos por marcadores."],
+  infra: ["Somente União Europeia, incluindo os backups.",
+          "Dois nós de ingestão atrás de DNS com verificação de saúde: perder um não interrompe a coleta.",
+          "Um PostgreSQL com segurança por linha, backups contínuos e recuperação pontual.",
+          "Tudo como código em um único monorepo MIT: OpenTofu e Docker Compose.",
+          "Umami e o coletor fixados por digest. O tracker é servido em URLs versionadas e imutáveis, com hash de integridade."],
+  slaT: "Compromissos para os 12 meses de operação",
+  sla: [["Disponibilidade da ingestão", "99,95% ao mês, projetada para 99,99%"],
+        ["Disponibilidade dos dashboards", "99,90%"],
+        ["Vulnerabilidades críticas e altas", "corrigidas em 24 horas"],
+        ["Suporte", "resposta em 3 dias úteis, resolução em 10"],
+        ["Capacidade", "1.000.000 de requisições de API por dia (cerca de 12 por segundo)"],
+        ["Custo para os projetos", "zero, sempre"]],
+  foot1: "Desenho proposto por Joaquín Farfán e Anael Casanova. Ainda não está em produção.",
+  foot2: "Repositório:"
+}};
+
+function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;"); }
+
+function diagram(t) {
+  var s = [];
+  function zone(x, y, w, h, k) {
+    s.push('<rect class="zone" x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" rx="12"/>');
+    s.push('<text class="zt" x="' + (x + 16) + '" y="' + (y + 24) + '">' + esc(t[k]) + '</text>');
+  }
+  function node(x, y, w, h, k, subs, cls) {
+    var cx = x + w / 2, rx = cls === "who" ? h / 2 : 8;
+    var total = 16 + subs.length * 14, ty = y + (h - total) / 2 + 13;
+    s.push('<g class="n ' + (cls || "") + '"><rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" rx="' + rx + '"/>');
+    s.push('<text class="nt" text-anchor="middle" x="' + cx + '" y="' + ty + '">' + esc(t[k]) + '</text>');
+    subs.forEach(function (sk, i) {
+      s.push('<text class="ns" text-anchor="middle" x="' + cx + '" y="' + (ty + 16 + i * 14) + '">' + esc(t[sk]) + '</text>');
+    });
+    s.push('</g>');
+  }
+  function edge(pts, cls) {
+    var m = cls === "k" ? "ak" : "a";
+    s.push('<polyline class="e ' + (cls || "") + '" points="' + pts + '"' + (cls === "d" ? "" : ' marker-end="url(#' + m + ')"') + '/>');
+  }
+  function label(x, y, k, cls, anchor) {
+    s.push('<text class="' + (cls || "el") + '" text-anchor="' + (anchor || "middle") + '" x="' + x + '" y="' + y + '">' + esc(t[k]) + '</text>');
+  }
+
+  s.push('<svg viewBox="0 0 1260 530" role="img" aria-label="' + esc(t.caption) + '">');
+  s.push('<defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ah" d="M0 0L10 5L0 10z"/></marker>');
+  s.push('<marker id="ak" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path class="ah k" d="M0 0L10 5L0 10z"/></marker></defs>');
+
+  zone(20, 40, 230, 470, "zTenant");
+  zone(330, 40, 250, 470, "zIngest");
+  zone(680, 40, 382, 470, "zCore");
+
+  // edges first so nodes sit on top
+  edge("230,142 350,142");            label(290, 133, "ePage");
+  edge("560,142 696,142", "k");       label(628, 133, "eAcc", "el k");
+  edge("230,302 350,302");            label(290, 293, "eDual");
+  edge("560,302 696,302", "k");       label(628, 293, "eAgg", "el k");
+  edge("135,334 135,410");            label(145, 376, "eOtlp", "el", "start");
+  edge("776,174 776,250", "k");       label(786, 216, "eWrites", "el k", "start");
+  edge("776,430 776,380");            label(786, 409, "eRoll", "el", "start");
+  edge("830,380 830,404 971,404 971,430");
+  edge("896,278 856,278");            label(876, 269, "eReads");
+  edge("896,352 856,352");            label(876, 343, "eReads");
+  edge("1104,142 856,142");           label(980, 133, "eOwn");
+  edge("1104,278 1046,278");
+  edge("1104,352 1046,352");
+  edge("455,174 455,198", "d");       label(455, 214, "dIp", "dl");
+  edge("455,334 455,358", "d");       label(455, 374, "dTr", "dl");
+  label(455, 480, "dns", "fn");
+
+  node(40, 110, 190, 64, "web", ["web1", "web2"]);
+  node(40, 270, 190, 64, "api", ["api1", "api2"]);
+  node(40, 410, 190, 56, "apm", ["apm1"]);
+  node(350, 110, 210, 64, "gw", ["gw1", "gw2"]);
+  node(350, 270, 210, 64, "col", ["col1", "col2"]);
+  node(696, 110, 160, 64, "um", ["um1", "um2"]);
+  node(696, 250, 160, 130, "pg", ["pg1", "pg2", "pg3"], "db");
+  node(696, 430, 160, 56, "ru", ["ru1"]);
+  node(896, 250, 150, 56, "oc", ["oc1"]);
+  node(896, 324, 150, 56, "ma", ["ma1"]);
+  node(896, 430, 150, 56, "bk", ["bk1"]);
+  node(1104, 114, 140, 56, "tt", ["tt1"], "who");
+  node(1104, 250, 140, 56, "so", ["so1"], "who");
+  node(1104, 324, 140, 56, "dt", ["dt1"], "who");
+  s.push('</svg>');
+  return s.join("");
+}
+
+function list(id, items) {
+  document.getElementById(id).innerHTML = items.map(function (x) { return "<li>" + esc(x) + "</li>"; }).join("");
+}
+
+function setLang(l) {
+  if (!T[l]) l = "en";
+  var t = T[l];
+  document.documentElement.lang = l;
+  document.querySelectorAll("[data-i]").forEach(function (el) { el.textContent = t[el.getAttribute("data-i")]; });
+  document.getElementById("diagram").innerHTML = diagram(t);
+  list("kept", t.kept); list("never", t.never); list("infra", t.infra);
+  document.getElementById("sla").innerHTML = t.sla.map(function (r) {
+    return "<tr><th scope=\"row\">" + esc(r[0]) + "</th><td>" + esc(r[1]) + "</td></tr>";
+  }).join("");
+  document.querySelectorAll(".langs button").forEach(function (b) {
+    b.setAttribute("aria-pressed", b.getAttribute("data-lang") === l ? "true" : "false");
+  });
+  try { localStorage.setItem("parallax-lang", l); } catch (e) {}
+}
+
+document.querySelectorAll(".langs button").forEach(function (b) {
+  b.addEventListener("click", function () {
+    var l = b.getAttribute("data-lang");
+    setLang(l);
+    try { history.replaceState(null, "", "#" + l); } catch (e) { location.hash = l; }
+  });
+});
+window.addEventListener("hashchange", function () {
+  var h = location.hash.slice(1); if (T[h]) setLang(h);
+});
+(function () {
+  var l = location.hash.slice(1);
+  if (!T[l]) { try { l = localStorage.getItem("parallax-lang"); } catch (e) { l = null; } }
+  if (!T[l]) l = (navigator.language || "en").slice(0, 2).toLowerCase();
+  setLang(l);
+})();
+</script>

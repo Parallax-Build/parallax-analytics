@@ -1,0 +1,20 @@
+# Front door for the Umami dashboard.
+#
+# Umami's own collection endpoints accept events for any website id from
+# anywhere. Parallax closes that door here: events can only arrive through the
+# ingest gateway, which checks origin, token and traffic class.
+{
+	admin off
+	auto_https off
+}
+
+:3000 {
+	@collection path /api/send /api/batch /script.js
+	handle @collection {
+		header Content-Type "application/json; charset=utf-8"
+		respond `{"code":"direct-collection-disabled","message":"Events are accepted only through the Parallax ingest gateway.","hint":"Use the Parallax tracker; see the README."}` 403
+	}
+	handle {
+		reverse_proxy umami:3000
+	}
+}

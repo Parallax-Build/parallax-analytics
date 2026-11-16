@@ -1,0 +1,149 @@
+# Parallax reference stack. One command: `docker compose up -d --build`.
+# Add `--profile demo` to also start a sample website and a sample API.
+#
+# Every third-party image is pinned to an exact version. Production pins by
+# digest as well (see docs/roadmap.md).
+
+name: parallax
+
+services:
+  db:
+    image: postgres:16.6-alpine
+    environment:
+      POSTGRES_DB: parallax
+      POSTGRES_USER: parallax
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U parallax -d parallax"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+    restart: unless-stopped
+
+  umami:
+    image: ghcr.io/umami-software/umami:3.4.1
+    environment:
+      DATABASE_URL: postgresql://parallax:${POSTGRES_PASSWORD}@db:5432/parallax
+      APP_SECRET: ${UMAMI_APP_SECRET:?set UMAMI_APP_SECRET in .env}
+      DISABLE_TELEMETRY: "1"
+      DISABLE_UPDATES: "1"
+    depends_on:
+      db:
+        condition: service_healthy
+    # No published port: Umami is reachable only through `edge`, which blocks
+    # its collection endpoints, and through the gateway on the internal network.
+    init: true
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:3000/api/heartbeat || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+    restart: unless-stopped
+
+  edge:
+    image: caddy:2.8.4-alpine
+    volumes:
+      - ./deploy/edge/Caddyfile:/etc/caddy/Caddyfile:ro
+    depends_on:
+      umami:
+        condition: service_healthy
+    ports:
+      - "${UMAMI_PORT:-3000}:3000"
+    restart: unless-stopped
+
+  core:
+    build: .
+    command: ["node", "apps/core/src/main.ts"]
+    environment:
+      DATABASE_URL: postgresql://parallax:${POSTGRES_PASSWORD}@db:5432/parallax
+      PARALLAX_INTERNAL_KEY: ${PARALLAX_INTERNAL_KEY:?set PARALLAX_INTERNAL_KEY in .env}
+      PARALLAX_OPERATOR_KEY: ${PARALLAX_OPERATOR_KEY:?set PARALLAX_OPERATOR_KEY in .env}
+      PARALLAX_OPERATOR_PUBLIC: ${PARALLAX_OPERATOR_PUBLIC:-false}
+      PORT: "8081"
+    depends_on:
+      umami:
+        condition: service_healthy
+    ports:
+      - "${CORE_PORT:-8081}:8081"
+    restart: unless-stopped
+
+  seed:
+    build: .
+    command: ["node", "apps/core/src/seed.ts"]
+    environment:
+      DATABASE_URL: postgresql://parallax:${POSTGRES_PASSWORD}@db:5432/parallax
+      UMAMI_URL: http://umami:3000
+      UMAMI_ADMIN_PASSWORD: ${UMAMI_ADMIN_PASSWORD:?set UMAMI_ADMIN_PASSWORD in .env}
+      PARALLAX_DEMO_API_KEY: ${PARALLAX_DEMO_API_KEY:-}
+      PARALLAX_TENANTS_FILE: ${PARALLAX_TENANTS_FILE:-deploy/tenants.demo.json}
+    depends_on:
+      core:
+        condition: service_started
+    restart: "no"
+
+  collector:
+    image: otel/opentelemetry-collector-contrib:0.164.0
+    command: ["--config=/etc/otelcol/config.yaml"]
+    environment:
+      PARALLAX_WRITER_URL: http://core:8081/internal/otlp
+      PARALLAX_INTERNAL_KEY: ${PARALLAX_INTERNAL_KEY}
+    volumes:
+      - ./deploy/collector/config.yaml:/etc/otelcol/config.yaml:ro
+    depends_on:
+      - core
+    restart: unless-stopped
+
+  gateway:
+    build: .
+    command: ["node", "apps/gateway/src/main.ts"]
+    environment:
+      DATABASE_URL: postgresql://parallax:${POSTGRES_PASSWORD}@db:5432/parallax
+      PARALLAX_TOKEN_SECRET: ${PARALLAX_TOKEN_SECRET:?set PARALLAX_TOKEN_SECRET in .env}
+      PARALLAX_WORK_BITS: ${PARALLAX_WORK_BITS:-12}
+      TRUST_PROXY: ${TRUST_PROXY:-false}
+      UMAMI_URL: http://umami:3000
+      COLLECTOR_URL: http://collector:4318
+      PORT: "8080"
+    depends_on:
+      seed:
+        condition: service_completed_successfully
+      collector:
+        condition: service_started
+    ports:
+      - "${GATEWAY_PORT:-8080}:8080"
+    restart: unless-stopped
+
+  # --- demo profile ---------------------------------------------------------
+
+  sample-site:
+    profiles: ["demo"]
+    build: .
+    command: ["node", "examples/site/server.ts"]
+    environment:
+      PORT: "8090"
+      DATABASE_URL: postgresql://parallax:${POSTGRES_PASSWORD}@db:5432/parallax
+      PARALLAX_INGEST_URL: ${PARALLAX_PUBLIC_INGEST_URL:-http://localhost:8080}
+    depends_on:
+      - gateway
+    ports:
+      - "8090:8090"
+      - "8092:8092"
+
+  sample-api:
+    profiles: ["demo"]
+    build: .
+    command: ["node", "--require", "./examples/sample-api/otel.cjs", "examples/sample-api/server.cjs"]
+    environment:
+      PORT: "8091"
+      OTEL_SERVICE_NAME: sample-horizon-api
+      OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: http://gateway:8080/otlp/v1/traces
+      PARALLAX_API_KEY: ${PARALLAX_DEMO_API_KEY:-}
+    depends_on:
+      - gateway
+    ports:
+      - "8091:8091"
+
+volumes:
+  db-data:
