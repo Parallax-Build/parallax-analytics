@@ -5,8 +5,8 @@
 {$PARALLAX_DOMAIN} {
 	encode gzip
 
-	# Operator console and Parallax APIs.
-	@core path /operator /operator/* /api/v1/*
+	# Landing page, infrastructure map, operator console and Parallax APIs.
+	@core path / /map /operator /operator/* /api/v1/*
 	handle @core {
 		reverse_proxy core:8081
 	}

@@ -30,6 +30,9 @@ services:
 
   core:
     ports: !reset []
+    environment:
+      PARALLAX_PUBLIC_INGEST_URL: https://ingest.${PARALLAX_DOMAIN}
+      PARALLAX_PUBLIC_API_DEMO_URL: https://api-demo.${PARALLAX_DOMAIN}
     mem_limit: 192m
 
   seed:

@@ -2,12 +2,23 @@
   {
     "id": "demo-wallet",
     "name": "Demo Wallet",
-    "domains": ["localhost:8090"],
+    "domains": [
+      "localhost:8090"
+    ],
     "apiKeyEnv": "PARALLAX_DEMO_API_KEY"
   },
   {
     "id": "demo-explorer",
     "name": "Demo Explorer",
-    "domains": ["localhost:8092"]
+    "domains": [
+      "localhost:8092"
+    ]
+  },
+  {
+    "id": "parallax",
+    "name": "Parallax (this site)",
+    "domains": [
+      "localhost:8081"
+    ]
   }
 ]

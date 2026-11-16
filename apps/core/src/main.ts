@@ -3,6 +3,7 @@ import { createServer, type IncomingMessage, type ServerResponse } from "node:ht
 import pg from "pg";
 import { renderOperatorPage } from "./operator.ts";
 import { parseSpanMetrics } from "./otlp.ts";
+import { renderLanding, renderMap } from "./pages.ts";
 import { ApiWriter, migrate, projectSummaries, tenantApiRoutes } from "./store.ts";
 
 function env(name: string, fallback?: string): string {
@@ -18,6 +19,8 @@ const internalKey = env("PARALLAX_INTERNAL_KEY");
 const operatorKey = env("PARALLAX_OPERATOR_KEY");
 const operatorPublic = env("PARALLAX_OPERATOR_PUBLIC", "false") === "true";
 const port = Number(env("PORT", "8081"));
+const ingestUrl = env("PARALLAX_PUBLIC_INGEST_URL", "http://localhost:8080").replace(/\/$/, "");
+const apiDemoUrl = env("PARALLAX_PUBLIC_API_DEMO_URL", "http://localhost:8091").replace(/\/$/, "");
 const pool = new pg.Pool({ connectionString: env("DATABASE_URL"), max: 6 });
 const writer = new ApiWriter(pool);
 
@@ -118,8 +121,15 @@ async function handle(req: IncomingMessage, res: ServerResponse): Promise<void> 
   }
 
   if (req.method === "GET" && path === "/") {
-    res.writeHead(302, { location: "/operator" });
-    res.end();
+    res.writeHead(200, { "content-type": "text/html; charset=utf-8", "cache-control": "no-store" });
+    res.end(await renderLanding(pool, { ingestUrl, apiDemoUrl }));
+    return;
+  }
+  if (req.method === "GET" && path === "/map") {
+    const page = renderMap();
+    if (!page) return error(res, 404, "not-found", "The infrastructure map is not bundled.", "See docs/infrastructure-map.html in the repository.");
+    res.writeHead(200, { "content-type": "text/html; charset=utf-8", "cache-control": "public, max-age=300" });
+    res.end(page);
     return;
   }
   return error(res, 404, "not-found", "No such endpoint.", "See the README for the list of endpoints.");

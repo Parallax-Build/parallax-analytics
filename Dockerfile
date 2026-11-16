@@ -16,6 +16,7 @@ COPY packages packages
 COPY apps apps
 COPY db db
 COPY deploy deploy
+COPY docs docs
 COPY examples examples
 
 USER node

@@ -2,17 +2,31 @@
   {
     "id": "demo-wallet",
     "name": "Demo Wallet",
-    "domains": ["demo.parallax.agentposhq.com"],
+    "domains": [
+      "demo.parallax.agentposhq.com"
+    ],
     "apiKeyEnv": "PARALLAX_DEMO_API_KEY"
   },
   {
     "id": "demo-explorer",
     "name": "Demo Explorer",
-    "domains": ["explorer-demo.parallax.agentposhq.com"]
+    "domains": [
+      "explorer-demo.parallax.agentposhq.com"
+    ]
   },
   {
     "id": "agentpos",
     "name": "AgentPOS",
-    "domains": ["agentposhq.com", "www.agentposhq.com"]
+    "domains": [
+      "agentposhq.com",
+      "www.agentposhq.com"
+    ]
+  },
+  {
+    "id": "parallax",
+    "name": "Parallax (this site)",
+    "domains": [
+      "parallax.agentposhq.com"
+    ]
   }
 ]
