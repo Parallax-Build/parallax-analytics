@@ -1,0 +1,60 @@
+# Single-node public deployment. Use on top of the base file:
+#
+#   docker compose -f docker-compose.yml -f deploy/prod/docker-compose.prod.yml --profile demo up -d --build
+#
+# Only Caddy publishes ports (80 and 443). Every other service is reachable on
+# the internal network only. Memory limits keep one service from starving the rest.
+
+services:
+  edge:
+    volumes: !override
+      - ./deploy/prod/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    environment:
+      PARALLAX_DOMAIN: ${PARALLAX_DOMAIN:?set PARALLAX_DOMAIN in .env}
+    ports: !override
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    depends_on:
+      - core
+      - gateway
+    mem_limit: 128m
+
+  db:
+    mem_limit: 384m
+
+  umami:
+    mem_limit: 640m
+
+  core:
+    ports: !reset []
+    mem_limit: 192m
+
+  seed:
+    mem_limit: 192m
+
+  collector:
+    mem_limit: 256m
+
+  gateway:
+    ports: !reset []
+    environment:
+      # Caddy sets X-Forwarded-For to the real client address.
+      TRUST_PROXY: "true"
+    mem_limit: 192m
+
+  sample-site:
+    ports: !reset []
+    environment:
+      PARALLAX_INGEST_URL: https://ingest.${PARALLAX_DOMAIN}
+    mem_limit: 128m
+
+  sample-api:
+    ports: !reset []
+    mem_limit: 160m
+
+volumes:
+  caddy-data:
+  caddy-config:

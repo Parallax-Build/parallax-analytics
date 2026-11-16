@@ -1,0 +1,43 @@
+# Public front door for a single-node deployment. Caddy obtains certificates
+# on its own; the DNS records must point straight at this server (no CDN proxy
+# in front, or the ACME challenge and the client address are both lost).
+
+{$PARALLAX_DOMAIN} {
+	encode gzip
+
+	# Operator console and Parallax APIs.
+	@core path /operator /operator/* /api/v1/*
+	handle @core {
+		reverse_proxy core:8081
+	}
+
+	# Umami's own collection endpoints accept events for any website id from
+	# anywhere. Events may only arrive through the ingest gateway.
+	@collection path /api/send /api/batch /script.js
+	handle @collection {
+		header Content-Type "application/json; charset=utf-8"
+		respond `{"code":"direct-collection-disabled","message":"Events are accepted only through the Parallax ingest gateway.","hint":"Use the Parallax tracker; see the README."}` 403
+	}
+
+	# Everything else: Umami dashboards.
+	handle {
+		reverse_proxy umami:3000
+	}
+}
+
+ingest.{$PARALLAX_DOMAIN} {
+	reverse_proxy gateway:8080
+}
+
+# Demo profile: two sample sites and a sample API.
+demo.{$PARALLAX_DOMAIN} {
+	reverse_proxy sample-site:8090
+}
+
+explorer-demo.{$PARALLAX_DOMAIN} {
+	reverse_proxy sample-site:8092
+}
+
+api-demo.{$PARALLAX_DOMAIN} {
+	reverse_proxy sample-api:8091
+}
