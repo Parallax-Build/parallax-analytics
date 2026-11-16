@@ -3,333 +3,384 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Parallax · web and API analytics for Stellar projects</title>
-<meta name="description" content="Privacy-first web and API analytics for projects building on Stellar. A working prototype you can test yourself.">
+<title>Parallax: usage, measured from two sides</title>
+<meta name="description" content="A shared instrument that measures how much a Stellar project is really used, from its website and from its API. A working prototype you can test yourself.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230E2A52'/%3E%3Cpath d='M6 26 16 7l10 19' fill='none' stroke='%23EAF0FA' stroke-width='1.6'/%3E%3Ccircle cx='16' cy='7' r='3' fill='%23E3B04B'/%3E%3C/svg%3E">
 {{TRACKER_TAG}}
 <style>
-/* Layout: one column, 1080px. Hero with the parallax figure, a live strip of numbers from this deployment,
-   three things to try, the ledger of what is stored, an honest built-vs-planned table. No third-party requests. */
+/* A plate from a star atlas, printed as a cyanotype: Prussian blue ground, white linework, one brass star.
+   One serif family throughout; annotations in italic, the way engraved charts label things.
+   Left-aligned, 1120px, ruled like an almanac rather than boxed into cards. Single committed look. */
 :root {
-  --bg: #F5F6F9; --surface: #FFFFFF; --zone: #ECEEF4; --fg: #161B2E; --muted: #5B6278;
-  --line: #C3C8D6; --keep: #0B6B83; --drop: #B23A30; --star: #B7791F;
-  --display: "Space Grotesk", "Avenir Next", "Segoe UI", system-ui, sans-serif;
-  --body: system-ui, "Segoe UI", Roboto, sans-serif;
-  --mono: ui-monospace, "Cascadia Code", "SF Mono", Consolas, monospace;
+  --ground: #0E2A52; --deep: #0A2043; --ink: #EAF0FA; --soft: #A9BEDF; --rule: rgba(234, 240, 250, .26);
+  --brass: #E3B04B; --signal: #FF8E73;
+  --serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", "URW Palladio L", Georgia, serif;
+  color-scheme: dark;
 }
-@media (prefers-color-scheme: dark) { :root {
-  --bg: #0F1320; --surface: #182033; --zone: #131A2B; --fg: #E8EBF3; --muted: #9AA3BA;
-  --line: #34405C; --keep: #5CC4DC; --drop: #F08A7E; --star: #E2B44C; color-scheme: dark } }
 * { box-sizing: border-box; }
-body { margin: 0; background: var(--bg); color: var(--fg); font: 16px/1.6 var(--body); }
-a { color: var(--keep); }
-.wrap { max-width: 1080px; margin: 0 auto; padding: 0 max(16px, env(safe-area-inset-right, 0px)) 0 max(16px, env(safe-area-inset-left, 0px)); }
-section { padding-block: 44px; border-top: 1px solid var(--line); }
+[hidden] { display: none !important; }
+html { background: var(--ground); }
+body { margin: 0; background: var(--ground); color: var(--ink); font: 18px/1.62 var(--serif); font-variant-numeric: lining-nums; }
+a { color: var(--ink); text-decoration-color: var(--brass); text-decoration-thickness: 1.5px; text-underline-offset: 3px; }
+a:hover { color: var(--brass); }
+:focus-visible { outline: 2px solid var(--brass); outline-offset: 3px; }
+.sheet { max-width: 1120px; margin: 0 auto; padding-inline: max(20px, env(safe-area-inset-left, 0px)) max(20px, env(safe-area-inset-right, 0px)); }
+em, .note { font-style: italic; }
+.note { color: var(--soft); font-size: 15.5px; }
 
-.top { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-block: 18px; flex-wrap: wrap; }
-.brand { font: 600 20px var(--display); letter-spacing: -.01em; display: flex; align-items: center; gap: 10px; }
-.brand svg { width: 26px; height: 26px; }
-.langs { display: flex; gap: 2px; border: 1px solid var(--line); border-radius: 999px; padding: 3px; background: var(--surface); }
-.langs button { font: 500 13px var(--body); color: var(--muted); background: none; border: 0; border-radius: 999px; padding: 5px 12px; cursor: pointer; }
-.langs button[aria-pressed="true"] { background: var(--fg); color: var(--bg); }
-:focus-visible { outline: 2px solid var(--keep); outline-offset: 2px; }
+/* masthead */
+.mast { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; flex-wrap: wrap; padding-block: 22px 16px; border-bottom: 1px solid var(--rule); }
+.name { font-size: 22px; letter-spacing: .01em; }
+.name small { font-size: 15px; font-style: italic; color: var(--soft); margin-left: 10px; }
+.langs { display: flex; gap: 18px; }
+.langs button { font: italic 15.5px var(--serif); color: var(--soft); background: none; border: 0; padding: 2px 0; cursor: pointer; border-bottom: 1.5px solid transparent; }
+.langs button[aria-pressed="true"] { color: var(--ink); border-bottom-color: var(--brass); }
 
-.hero { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, .85fr); gap: 40px; align-items: center; padding-block: 36px 52px; }
-.eyebrow { font: 12px var(--mono); letter-spacing: .07em; text-transform: uppercase; color: var(--muted); margin: 0 0 14px; }
-h1 { font: 600 clamp(32px, 5.4vw, 54px)/1.06 var(--display); letter-spacing: -.02em; margin: 0; text-wrap: balance; }
-.lede { font-size: 18px; color: var(--muted); margin: 18px 0 0; max-width: 56ch; }
-.cta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 26px; }
-.btn { display: inline-block; font: 600 15px var(--body); text-decoration: none; padding: 11px 18px; border-radius: 8px; border: 1px solid var(--fg); color: var(--fg); }
-.btn.primary { background: var(--fg); color: var(--bg); }
-.status { margin-top: 18px; font-size: 13.5px; color: var(--muted); }
-.status b { color: var(--star); font-weight: 600; }
-.fig svg { width: 100%; height: auto; display: block; }
-.fig text { font-family: var(--mono); font-size: 11px; fill: var(--muted); }
-.fig .lbl { fill: var(--fg); font-family: var(--body); font-size: 12.5px; font-weight: 600; }
-figcaption { font-size: 13px; color: var(--muted); margin-top: 8px; }
-figure { margin: 0; }
+/* opening */
+.opening { padding-block: 54px 26px; }
+h1 { font-weight: 400; font-size: clamp(40px, 7.4vw, 92px); line-height: .98; letter-spacing: -.022em; margin: 0; max-width: 13ch; }
+.lede { font-size: clamp(19px, 2.1vw, 23px); line-height: 1.5; max-width: 34em; margin: 30px 0 0; }
+.lede + .lede { margin-top: 14px; color: var(--soft); }
 
-h2 { font: 600 26px/1.2 var(--display); letter-spacing: -.01em; margin: 0 0 6px; text-wrap: balance; }
-.sub { color: var(--muted); margin: 0 0 24px; max-width: 65ch; }
-.live { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 0; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); overflow: hidden; }
-.live div { padding: 18px 20px; border-right: 1px solid var(--line); min-width: 0; }
-.live div:last-child { border-right: 0; }
-.live b { display: block; font: 600 30px/1.1 var(--display); font-variant-numeric: tabular-nums; }
-.live span { font-size: 13.5px; color: var(--muted); }
-.live .r b { color: var(--drop); }
-.livenote { font-size: 13px; color: var(--muted); margin-top: 10px; }
-.dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--keep); margin-right: 7px; }
+/* the plate */
+.plate { margin: 26px 0 0; border: 1px solid var(--rule); background: var(--deep); position: relative; }
+.plate svg { display: block; width: 100%; height: auto; touch-action: none; cursor: crosshair; }
+.plate text { font-family: var(--serif); font-style: italic; fill: var(--ink); font-size: 17px; }
+.plate .dim { fill: var(--soft); font-size: 15px; }
+.plate-cap { display: flex; justify-content: space-between; gap: 24px; flex-wrap: wrap; padding: 12px 16px; border-top: 1px solid var(--rule); font-style: italic; font-size: 15.5px; color: var(--soft); }
+.plate-cap b { font-weight: 400; color: var(--ink); font-variant-numeric: tabular-nums lining-nums; }
 
-.tries { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 16px; }
-.try { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 20px; min-width: 0; display: flex; flex-direction: column; gap: 10px; }
-.try h3 { font: 600 17px var(--display); margin: 0; }
-.try p { margin: 0; color: var(--muted); font-size: 14.5px; }
-.kicker { font: 11.5px var(--mono); letter-spacing: .07em; text-transform: uppercase; color: var(--keep); }
-.kicker.d { color: var(--drop); }
-pre { margin: 0; font: 12.5px/1.5 var(--mono); background: var(--zone); border: 1px solid var(--line); border-radius: 8px; padding: 12px; overflow-x: auto; white-space: pre; }
-.resp { color: var(--drop); }
-.copy { align-self: flex-start; font: 500 13px var(--body); background: none; color: var(--fg); border: 1px solid var(--line); border-radius: 6px; padding: 5px 10px; cursor: pointer; }
-.try .go { margin-top: auto; font-weight: 600; font-size: 14.5px; }
+.act { display: flex; gap: 14px 26px; flex-wrap: wrap; align-items: center; padding-block: 30px 6px; }
+.btn { display: inline-block; font: 17px var(--serif); text-decoration: none; padding: 11px 22px; border: 1px solid var(--ink); border-radius: 2px; color: var(--ink); }
+.btn.solid { background: var(--ink); color: var(--ground); }
+.btn.solid:hover { background: var(--brass); border-color: var(--brass); color: var(--deep); }
+.state { margin: 14px 0 0; }
+.state i { color: var(--brass); }
 
-.ledgers { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 24px; }
-.ledger { border-top: 3px solid var(--keep); padding-top: 14px; min-width: 0; }
-.ledger.d { border-color: var(--drop); }
-.ledger h3 { font: 600 17px var(--display); margin: 0 0 10px; }
-.ledger ul { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 8px; font-size: 15px; }
-.path { margin-top: 26px; }
-.path .x { color: var(--drop); text-decoration: line-through; } .path .y { color: var(--keep); font-weight: 600; }
+/* chapters */
+.chapter { display: grid; grid-template-columns: minmax(0, 300px) minmax(0, 1fr); gap: 20px 56px; padding-block: 62px 8px; margin-top: 54px; border-top: 1px solid var(--rule); }
+.chapter > h2 { font-weight: 400; font-size: clamp(27px, 3.2vw, 36px); line-height: 1.12; letter-spacing: -.012em; margin: 0; text-wrap: balance; }
+.chapter > div > p { margin: 0 0 16px; max-width: 36em; }
+.chapter > div > p:last-child { margin-bottom: 0; }
+.chapter.wide { grid-template-columns: 1fr; gap: 30px; }
 
-.tbl { overflow-x: auto; }
-table { width: 100%; border-collapse: collapse; font-size: 15px; }
-th, td { text-align: left; padding: 10px 14px 10px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
-thead th { font-weight: 500; color: var(--muted); font-size: 13px; }
-td:first-child { font-weight: 600; width: 34%; }
+/* almanac tables */
+.almanac { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums lining-nums; }
+.almanac th, .almanac td { text-align: right; padding: 11px 0 11px 18px; border-bottom: 1px solid var(--rule); vertical-align: baseline; }
+.almanac th:first-child, .almanac td:first-child { text-align: left; padding-left: 0; }
+.almanac thead th { font-weight: 400; font-style: italic; color: var(--soft); font-size: 15.5px; border-bottom-color: var(--ink); }
+.almanac tbody td { font-size: 21px; }
+.almanac tbody td:first-child { font-size: 18px; }
+.almanac .turned { color: var(--signal); }
+.almanac tfoot td { font-style: italic; color: var(--soft); font-size: 15.5px; border-bottom: 0; text-align: left; padding-top: 14px; }
+.scroll { overflow-x: auto; }
+.plain td { font-size: 17px !important; text-align: left !important; padding-left: 0 !important; padding-right: 22px !important; }
+.plain td:first-child { width: 24%; }
+.plain th { text-align: left !important; padding-left: 0 !important; }
 
-.links { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
-.links a { display: block; padding: 14px 16px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); text-decoration: none; color: var(--fg); min-width: 0; }
-.links a b { display: block; font: 600 15px var(--display); }
-.links a span { font-size: 13.5px; color: var(--muted); }
-footer { padding-block: 28px 44px; border-top: 1px solid var(--line); color: var(--muted); font-size: 13.5px; display: flex; flex-direction: column; gap: 4px; }
+/* experiments */
+.trials { display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 34px 40px; }
+.trial { min-width: 0; border-top: 1px solid var(--ink); padding-top: 14px; }
+.trial h3 { font-weight: 400; font-size: 22px; line-height: 1.2; margin: 0 0 8px; }
+.trial p { margin: 0 0 12px; font-size: 16.5px; color: var(--soft); }
+.trial .verdict { font-style: italic; color: var(--brass); font-size: 15.5px; margin: 0 0 6px; }
+.trial .verdict.no { color: var(--signal); }
+pre { margin: 0 0 10px; font: 13px/1.55 ui-monospace, "Cascadia Mono", Consolas, monospace; background: var(--ground); border: 1px solid var(--rule); padding: 12px 14px; overflow-x: auto; white-space: pre; color: var(--ink); }
+pre.reply { color: var(--signal); }
+.copy { font: italic 15px var(--serif); background: none; color: var(--soft); border: 0; border-bottom: 1px solid var(--rule); padding: 0 0 1px; cursor: pointer; margin-bottom: 12px; }
+.copy:hover { color: var(--ink); }
 
-@media (max-width: 760px) { .hero { grid-template-columns: 1fr; } .live div { border-right: 0; border-bottom: 1px solid var(--line); } }
-@media (prefers-reduced-motion: no-preference) { .pulse { animation: pulse 2.4s ease-in-out infinite; } @keyframes pulse { 50% { opacity: .35; } } }
+.refuse { list-style: none; margin: 0; padding: 0; }
+.refuse li { padding: 13px 0; border-bottom: 1px solid var(--rule); max-width: 38em; }
+.refuse li:first-child { border-top: 1px solid var(--ink); }
+.refuse s { color: var(--signal); text-decoration-thickness: 1.5px; }
+.struck { margin-top: 22px; }
+.struck s { color: var(--signal); } .struck b { color: var(--brass); font-weight: 400; }
+
+.log { list-style: none; margin: 0; padding: 0; }
+.log li { display: grid; grid-template-columns: 5.4em minmax(0, 1fr); gap: 0 20px; padding: 14px 0; border-bottom: 1px solid var(--rule); }
+.log li:first-child { border-top: 1px solid var(--ink); }
+.log time { font-style: italic; color: var(--soft); font-variant-numeric: tabular-nums lining-nums; }
+.log p { margin: 0; max-width: 36em; }
+
+.close { margin-top: 62px; padding-block: 34px 60px; border-top: 1px solid var(--rule); display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 26px 48px; font-size: 16.5px; }
+.close ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 7px; }
+.close p { margin: 0; color: var(--soft); }
+
+@media (max-width: 820px) {
+  .chapter { grid-template-columns: 1fr; padding-block: 44px 4px; margin-top: 40px; }
+  .almanac tbody td { font-size: 18px; }
+  .plate text { font-size: 22px; } .plate .dim { font-size: 20px; }
+}
 </style>
 </head>
 <body>
-<div class="wrap">
-  <div class="top">
-    <div class="brand">
-      <svg viewBox="0 0 26 26" aria-hidden="true"><circle cx="13" cy="5" r="2.6" fill="var(--star)"/><path d="M4 22 13 5l9 17" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="4" cy="22" r="2" fill="var(--keep)"/><circle cx="22" cy="22" r="2" fill="var(--keep)"/></svg>
-      Parallax
-    </div>
+<div class="sheet">
+  <header class="mast">
+    <div class="name">Parallax <small data-i="tag">a measuring instrument for Stellar projects</small></div>
     <div class="langs" role="group" aria-label="Language">
       <button type="button" data-lang="en">English</button>
       <button type="button" data-lang="es">Español</button>
       <button type="button" data-lang="pt">Português</button>
     </div>
-  </div>
+  </header>
 
-  <div class="hero">
-    <div>
-      <p class="eyebrow" data-i="eyebrow">Stellar Community Fund #46 · RFP: Web and API Analytics</p>
-      <h1 data-i="h1">Usage you can check, not usage you are told.</h1>
-      <p class="lede" data-i="lede">Parallax is a shared analytics service for projects building on Stellar. It measures websites and APIs the same way for everyone, without cookies, without storing IP addresses, and with defenses against inflated numbers.</p>
-      <div class="cta">
-        <a class="btn primary" href="/operator" data-i="cta1">Open the operator console</a>
-        <a class="btn" href="{{DEMO_ORIGIN}}" data-i="cta2">Visit a measured demo site</a>
-      </div>
-      <p class="status"><b data-i="statusB">Working prototype.</b> <span data-i="status">Everything on this page runs on this server right now. It is not yet a production service.</span></p>
-    </div>
-    <figure class="fig">
-      <svg viewBox="0 0 400 300" role="img" aria-labelledby="figt">
-        <title id="figt">Two observation points, a website and an API, sighting the same target: real usage.</title>
-        <line x1="60" y1="250" x2="200" y2="52" stroke="var(--keep)" stroke-width="1.6"/>
-        <line x1="340" y1="250" x2="200" y2="52" stroke="var(--keep)" stroke-width="1.6"/>
-        <line x1="60" y1="250" x2="340" y2="250" stroke="var(--line)" stroke-width="1.4" stroke-dasharray="5 4"/>
-        <path d="M186 72 A 24 24 0 0 0 214 72" fill="none" stroke="var(--star)" stroke-width="1.6"/>
-        <circle class="pulse" cx="200" cy="52" r="15" fill="none" stroke="var(--star)" stroke-width="1"/>
-        <circle cx="200" cy="52" r="6" fill="var(--star)"/>
-        <circle cx="60" cy="250" r="7" fill="var(--keep)"/>
-        <circle cx="340" cy="250" r="7" fill="var(--keep)"/>
-        <text class="lbl" x="200" y="24" text-anchor="middle" data-i="figStar">real usage</text>
-        <text class="lbl" x="60" y="276" text-anchor="middle" data-i="figWeb">website</text>
-        <text class="lbl" x="340" y="276" text-anchor="middle" data-i="figApi">API</text>
-        <text x="200" y="234" text-anchor="middle" data-i="figBase">baseline: two independent measurements</text>
-        <text x="200" y="98" text-anchor="middle">p</text>
+  <section class="opening">
+    <h1 data-i="h1">Usage, measured from two sides.</h1>
+    <p class="lede" data-i="lede1">Astronomers cannot travel to a star to measure how far it is. They sight it twice, from opposite sides of Earth's orbit, and read the distance from how much it appears to move. That shift is called parallax.</p>
+    <p class="lede" data-i="lede2">A project's real usage is just as hard to reach. Today each team reports its own numbers, and nobody else can take the reading. Parallax sights it from two sides, the website and the API, with an instrument the project does not control.</p>
+
+    <figure class="plate">
+      <svg id="plate" viewBox="0 0 1000 500" role="img" aria-labelledby="plate-title">
+        <title id="plate-title" data-i="plateTitle">Two observers, a website and an API, sight the same target. Seen against the background, the target appears in two different places.</title>
+        <g id="field"></g>
+        <line x1="40" y1="58" x2="960" y2="58" stroke="var(--rule)" stroke-dasharray="2 7"/>
+        <ellipse cx="500" cy="432" rx="210" ry="30" fill="none" stroke="var(--rule)"/>
+        <line id="sl" stroke="var(--ink)" stroke-width="1.1"/>
+        <line id="sr" stroke="var(--ink)" stroke-width="1.1"/>
+        <path id="arc" fill="none" stroke="var(--brass)" stroke-width="1.4"/>
+        <g id="apl"><circle r="5" fill="none" stroke="var(--ink)" stroke-width="1.2"/><line x1="-9" x2="9" stroke="var(--ink)"/><line y1="-9" y2="9" stroke="var(--ink)"/></g>
+        <g id="apr"><circle r="5" fill="none" stroke="var(--ink)" stroke-width="1.2"/><line x1="-9" x2="9" stroke="var(--ink)"/><line y1="-9" y2="9" stroke="var(--ink)"/></g>
+        <text id="tapl" class="dim" text-anchor="middle" y="38" data-i="seenApi">as seen from the API</text>
+        <text id="tapr" class="dim" text-anchor="middle" y="38" data-i="seenWeb">as seen from the website</text>
+        <circle id="star" r="8" fill="var(--brass)"/>
+        <text id="tstar" x="0" y="0" data-i="target">real usage</text>
+        <circle cx="290" cy="432" r="6" fill="var(--ink)"/>
+        <circle cx="710" cy="432" r="6" fill="var(--ink)"/>
+        <text x="290" y="472" text-anchor="middle" data-i="obsWeb">website</text>
+        <text x="710" y="472" text-anchor="middle" data-i="obsApi">API</text>
+        <text x="500" y="486" text-anchor="middle" class="dim" data-i="baseline">two independent sightings</text>
       </svg>
-      <figcaption data-i="figCap">Stellar parallax: the distance to a star is measured by sighting it from two points. Parallax sights a project's usage from its website and from its API.</figcaption>
+      <figcaption class="plate-cap">
+        <span data-i="plateHint">Move the pointer over the plate. The nearer the target, the further apart the two sightings fall.</span>
+        <span><span data-i="angle">Angle between sightings</span> <b id="p">0</b>°</span>
+      </figcaption>
     </figure>
-  </div>
 
-  <section id="live" hidden>
-    <h2 data-i="liveT">Live from this deployment</h2>
-    <p class="sub" data-i="liveS">The last 7 days, across every enrolled project. These are the numbers an SCF operator sees.</p>
-    <div class="live">
-      <div><b id="n-projects">–</b><span data-i="nProjects">projects enrolled</span></div>
-      <div><b id="n-views">–</b><span data-i="nViews">page views counted</span></div>
-      <div><b id="n-api">–</b><span data-i="nApi">API requests measured</span></div>
-      <div class="r"><b id="n-rej">–</b><span data-i="nRej">forged or automated events caught</span></div>
+    <div class="act">
+      <a class="btn solid" href="/operator" data-i="cta1">See the live readings</a>
+      <a class="btn" href="#trials" data-i="cta2">Test it yourself</a>
     </div>
-    <p class="livenote"><span class="dot pulse"></span><span data-i="liveNote">Updates every 15 seconds. Low numbers are real numbers: nothing here is seeded.</span></p>
+    <p class="note state"><i data-i="stateA">Working prototype.</i> <span data-i="stateB">Everything described here is running on this server now. It is not yet a production service.</span></p>
   </section>
 
-  <section>
-    <h2 data-i="tryT">Three things to try</h2>
-    <p class="sub" data-i="tryS">Each takes under a minute. Keep the operator console open in another tab and watch it change.</p>
-    <div class="tries">
-      <div class="try">
-        <span class="kicker" data-i="t1k">Counted</span>
-        <h3 data-i="t1h">Visit a measured site</h3>
-        <p data-i="t1p">Open the demo site and click around. Your browser earns a short-lived token, then sends one event per page. No cookie is set; check the network tab.</p>
-        <div class="go" style="display:flex;flex-direction:column;gap:6px">
-          <a href="{{DEMO_ORIGIN}}" data-i="t1a">Open Demo Wallet</a>
-          <a href="{{EXPLORER_ORIGIN}}" data-i="t1b">Open Demo Explorer</a>
+  <section class="chapter">
+    <h2 data-i="c1h">A number nobody else can check</h2>
+    <div>
+      <p data-i="c1a">The Stellar Community Fund decides who to fund partly on how much a project is used. Those figures arrive written by the teams asking for the money. Each one counts in its own way, and a counter can be fed by a script as easily as by a person.</p>
+      <p data-i="c1b">SCF asked for one shared instrument instead: the same for every project, free, private by design, and hard to inflate. This is our answer.</p>
+    </div>
+  </section>
+
+  <section class="chapter" id="readings" hidden>
+    <h2 data-i="c2h">Readings from this instrument</h2>
+    <div>
+      <div class="scroll"><table class="almanac">
+        <thead><tr><th data-i="colProject">Project</th><th data-i="colViews">Page views</th><th data-i="colVisitors">Visitors</th><th data-i="colApi">API requests</th><th data-i="colTurned">Turned away</th></tr></thead>
+        <tbody id="rows"></tbody>
+        <tfoot><tr><td colspan="5" data-i="readFoot">The last seven days, read from the database every fifteen seconds. Small numbers are real numbers: nothing here is seeded. "Turned away" counts forged and automated events.</td></tr></tfoot>
+      </table></div>
+    </div>
+  </section>
+
+  <section class="chapter wide" id="trials">
+    <h2 data-i="c3h">Take the readings yourself</h2>
+    <div>
+      <div class="trials">
+        <div class="trial">
+          <p class="verdict" data-i="t1v">It will be counted</p>
+          <h3 data-i="t1h">Visit a measured site</h3>
+          <p data-i="t1p">Open one of the two demonstration sites and click around. Your browser earns a short-lived token, then sends one event per page. No cookie is set; the network tab will show you.</p>
+          <p><a href="{{DEMO_ORIGIN}}" data-i="t1a">Demo Wallet</a><br><a href="{{EXPLORER_ORIGIN}}" data-i="t1b">Demo Explorer</a></p>
         </div>
-      </div>
-      <div class="try">
-        <span class="kicker d" data-i="t2k">Rejected</span>
-        <h3 data-i="t2h">Try to forge a visit</h3>
-        <p data-i="t2p">The website id is public, like any analytics id. Use it to add traffic from a terminal:</p>
-        <pre id="curl1">curl -s -X POST {{INGEST}}/e \
+        <div class="trial">
+          <p class="verdict no" data-i="t2v">It will be turned away</p>
+          <h3 data-i="t2h">Forge a visit</h3>
+          <p data-i="t2p">The site's id is public, as it is in any analytics tool. Use it to add a visit from a terminal:</p>
+          <pre id="curl1">curl -s -X POST {{INGEST}}/e \
   -H 'Origin: {{DEMO_ORIGIN}}' \
   -d '{"type":"event","payload":{"website":"{{DEMO_WEBSITE}}","url":"/"}}'</pre>
-        <button class="copy" type="button" data-copy="curl1" data-i="copy">Copy</button>
-        <pre class="resp">{"code":"missing-token", ...}</pre>
-        <p data-i="t2q">The attempt is refused, and it shows up in the console as a rejected event with its reason.</p>
+          <button class="copy" type="button" data-copy="curl1" data-i="copy">Copy the command</button>
+          <pre class="reply">{"code":"missing-token", ...}</pre>
+          <p data-i="t2q">The attempt is refused, and it appears in the readings as turned away, with the reason.</p>
+        </div>
+        <div class="trial">
+          <p class="verdict" data-i="t3v">It will be counted, without the address</p>
+          <h3 data-i="t3h">Call an API with a Stellar account</h3>
+          <p data-i="t3p">The demonstration API reports to Parallax through OpenTelemetry. Call it with any account:</p>
+          <pre id="curl2">curl -s {{API_DEMO}}/accounts/GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN/payments</pre>
+          <button class="copy" type="button" data-copy="curl2" data-i="copy">Copy the command</button>
+          <p data-i="t3q">About fifteen seconds later the readings list one more request to the route below. The account was never written down, and neither was the trace.</p>
+          <pre>GET /accounts/{account}/payments</pre>
+        </div>
       </div>
-      <div class="try">
-        <span class="kicker" data-i="t3k">Normalized</span>
-        <h3 data-i="t3h">Call an API with a Stellar address</h3>
-        <p data-i="t3p">The demo API reports to Parallax through OpenTelemetry. Call it with any account:</p>
-        <pre id="curl2">curl -s {{API_DEMO}}/accounts/GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN/payments</pre>
-        <button class="copy" type="button" data-copy="curl2" data-i="copy">Copy</button>
-        <p data-i="t3q">About 15 seconds later the console lists the route below. The address was never stored, and neither was the trace.</p>
-        <pre>GET /accounts/{account}/payments</pre>
-      </div>
+    </div>
+  </section>
+
+  <section class="chapter">
+    <h2 data-i="c4h">What the instrument refuses to keep</h2>
+    <div>
+      <ul class="refuse">
+        <li data-i="r1">Full IP addresses. They are cut short inside the gateway, before anything else sees them. Only the country survives.</li>
+        <li data-i="r2">Cookies, or any identifier that would follow a visitor from one project to another.</li>
+        <li data-i="r3">Traces, spans and logs. The collector takes the counts and the timings, then throws the rest away.</li>
+        <li data-i="r4">Accounts, contracts and transaction hashes in API paths. They are replaced before storage.</li>
+      </ul>
+      <pre class="struck">GET /accounts/<s>GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN</s>/payments
+GET /accounts/<b>{account}</b>/payments</pre>
     </div>
   </section>
 
-  <section>
-    <h2 data-i="keepT">What is stored, and what never is</h2>
-    <p class="sub" data-i="keepS">A measurement service is only as trustworthy as its restraint.</p>
-    <div class="ledgers">
-      <div class="ledger">
-        <h3 data-i="storedT">Stored</h3>
-        <ul><li data-i="s1">Page views, visitors, referrers, session duration, bounce rate, country, device and browser.</li>
-        <li data-i="s2">API request counts, status codes and latency per normalized route.</li>
-        <li data-i="s3">A traffic class for every event: confident, low confidence or automated. Rejections are counted too.</li></ul>
-      </div>
-      <div class="ledger d">
-        <h3 data-i="neverT">Never stored</h3>
-        <ul><li data-i="n1">Full IP addresses. They are truncated inside the gateway, before anything else sees them.</li>
-        <li data-i="n2">Cookies, or any identifier that follows a visitor from one project to another.</li>
-        <li data-i="n3">Traces, spans and logs. The collector derives the numbers and drops the rest.</li>
-        <li data-i="n4">Raw API paths. Stellar accounts, contracts, hashes and IDs become placeholders.</li></ul>
-      </div>
-    </div>
-    <pre class="path">GET /accounts/<span class="x">GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN</span>/payments  →  GET /accounts/<span class="y">{account}</span>/payments</pre>
-  </section>
-
-  <section>
-    <h2 data-i="builtT">Built today, and what the award would fund</h2>
-    <p class="sub" data-i="builtS">Stated plainly, so nobody has to guess where the prototype ends.</p>
-    <div class="tbl"><table>
-      <thead><tr><th data-i="c1">Area</th><th data-i="c2">Running on this server</th><th data-i="c3">Funded by the award</th></tr></thead>
-      <tbody>
-        <tr><td data-i="r1a">Web analytics</td><td data-i="r1b">Versioned tracker, no cookies, on unmodified Umami.</td><td data-i="r1c">npm package, country-only location, retention policy.</td></tr>
-        <tr><td data-i="r2a">Inflation defense</td><td data-i="r2b">Origin binding, browser token, three traffic classes, rejections counted.</td><td data-i="r2c">Data-center detection, per-project inflation signals, cross-check against on-chain activity.</td></tr>
-        <tr><td data-i="r3a">API analytics</td><td data-i="r3b">OpenTelemetry dual export, aggregates only, path rules for Stellar identifiers.</td><td data-i="r3c">gRPC, rollups kept 36 months, capacity for 1,000,000 requests a day.</td></tr>
-        <tr><td data-i="r4a">Isolation and access</td><td data-i="r4b">Row-level security per project, read-only operator view.</td><td data-i="r4c">Self-service enrollment, operator API keys.</td></tr>
-        <tr><td data-i="r5a">Operation</td><td data-i="r5b">One node in the EU, one command to deploy, tests in CI.</td><td data-i="r5c">Two ingest nodes, backups, infrastructure as code, 12 months of hosting and support, handover.</td></tr>
-      </tbody>
-    </table></div>
-  </section>
-
-  <section>
-    <h2 data-i="moreT">Look closer</h2>
-    <div class="links">
-      <a href="/operator"><b data-i="l1">Operator console</b><span data-i="l1s">Every project, side by side</span></a>
-      <a href="/map"><b data-i="l2">Infrastructure map</b><span data-i="l2s">Where the data goes, in three languages</span></a>
-      <a href="/api/v1/projects"><b data-i="l3">Operator API</b><span data-i="l3s">The same numbers as JSON</span></a>
-      <a href="{{DASHBOARD}}"><b data-i="l4">A project dashboard</b><span data-i="l4s">What Demo Wallet sees: visitors, referrers, countries, devices</span></a>
-      <a href="{{DASHBOARD_SELF}}"><b data-i="l5">This page, measured</b><span data-i="l5s">The live dashboard of the page you are reading</span></a>
+  <section class="chapter">
+    <h2 data-i="c5h">Field notes, first evening online</h2>
+    <div>
+      <ol class="log">
+        <li><time>20:51 UTC</time><p data-i="n1">The instrument goes online on the smallest server money can rent: one processor core, two gigabytes of memory, in Helsinki.</p></li>
+        <li><time>20:53</time><p data-i="n2">Two minutes later, strangers are already asking the demonstration API for <em>/.env</em>, <em>/wp-config.php</em> and <em>/backup.sql</em>. Each request became a new route in the readings. Anyone could have inflated a project's route list this way.</p></li>
+        <li><time>20:55</time><p data-i="n3">Fixed. Requests for paths an API does not have now fall into a single entry. A problem that only real traffic could have shown us.</p></li>
+        <li><time>by 21:12</time><p data-i="n4">A visitor from the Netherlands, on Linux, reads this page. We do not know who. The prototype counts the visit as confident; the funded version would also weigh the network it came from.</p></li>
+        <li><time>21:29</time><p data-i="n5">Load test. Two hundred API requests a second for five minutes: 60,000 sent, 60,000 stored, none lost, in five routes. That pace is seventeen times what SCF asked for, and no service used more than a twentieth of the core.</p></li>
+      </ol>
+      <p class="note" style="margin-top:16px" data-i="nDate">16 November 2026. Times are when we observed each thing, to the nearest few minutes.</p>
     </div>
   </section>
 
-  <footer>
-    <span data-i="f1">Parallax is a proposal by Joaquín Farfán and Anael Casanova for the Stellar Community Fund. MIT licensed; the source opens with the submission.</span>
-    <span data-i="f2">This page makes no third-party requests and is measured by Parallax itself.</span>
+  <section class="chapter wide">
+    <h2 data-i="c6h">Built now, and what the award would build</h2>
+    <div>
+      <div class="scroll"><table class="almanac plain">
+        <thead><tr><th></th><th data-i="b0a">Running on this server</th><th data-i="b0b">Funded by the award</th></tr></thead>
+        <tbody>
+          <tr><td data-i="b1">Websites</td><td data-i="b1a">A versioned tracker with no cookies, on unmodified Umami.</td><td data-i="b1b">An npm package, country-only location, a retention policy.</td></tr>
+          <tr><td data-i="b2">Inflation</td><td data-i="b2a">Events only from registered domains, with a token the browser must earn. Three traffic classes. Refusals counted.</td><td data-i="b2b">Data-centre detection, inflation signals per project, a cross-check against activity on the Stellar network.</td></tr>
+          <tr><td data-i="b3">APIs</td><td data-i="b3a">OpenTelemetry as a second destination. Aggregates only. Path rules for Stellar identifiers.</td><td data-i="b3b">gRPC, thirty-six months of history, capacity proven at a million requests a day in production.</td></tr>
+          <tr><td data-i="b4">Access</td><td data-i="b4a">Each project sees only its own rows, enforced by the database. A read-only view across projects.</td><td data-i="b4b">Self-service enrolment and operator API keys.</td></tr>
+          <tr><td data-i="b5">Operation</td><td data-i="b5a">One node in the European Union, deployed with one command, tested on every change.</td><td data-i="b5b">Two ingest nodes, backups, infrastructure as code, twelve months of hosting and support, then a handover.</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+  </section>
+
+  <footer class="close">
+    <ul>
+      <li><a href="/operator" data-i="l1">The live readings, project by project</a></li>
+      <li><a href="{{DASHBOARD}}" data-i="l2">What a project sees: Demo Wallet's dashboard</a></li>
+      <li><a href="{{DASHBOARD_SELF}}" data-i="l3">This page, measured by itself</a></li>
+      <li><a href="/map" data-i="l4">Where the data goes: infrastructure map</a></li>
+      <li><a href="/api/v1/projects" data-i="l5">The same readings as JSON</a></li>
+    </ul>
+    <div>
+      <p data-i="f1">Parallax is a proposal by Joaquín Farfán and Anael Casanova to the Stellar Community Fund, round 46, in answer to its request for web and API analytics.</p>
+      <p style="margin-top:10px" data-i="f2">MIT licensed. The source opens with the submission. This page makes no third-party requests.</p>
+    </div>
   </footer>
 </div>
 
 <script>
 var T = {
 es: {
-  eyebrow: "Stellar Community Fund #46 · RFP: Web and API Analytics",
-  h1: "Uso que se puede comprobar, no uso que te cuentan.",
-  lede: "Parallax es un servicio de analítica compartido para los proyectos que construyen sobre Stellar. Mide sitios web y APIs de la misma forma para todos, sin cookies, sin guardar direcciones IP y con defensas contra cifras infladas.",
-  cta1: "Abrir la consola de operador", cta2: "Visitar un sitio de ejemplo medido",
-  statusB: "Prototipo funcionando.", status: "Todo lo que aparece en esta página corre ahora mismo en este servidor. Aún no es un servicio en producción.",
-  figStar: "uso real", figWeb: "sitio web", figApi: "API", figBase: "línea base: dos mediciones independientes",
-  figCap: "Paralaje estelar: la distancia a una estrella se mide observándola desde dos puntos. Parallax observa el uso de un proyecto desde su sitio web y desde su API.",
-  liveT: "En vivo desde este despliegue", liveS: "Los últimos 7 días, sumando todos los proyectos inscritos. Son las cifras que ve un operador de SCF.",
-  nProjects: "proyectos inscritos", nViews: "páginas vistas contadas", nApi: "requests de API medidos", nRej: "eventos falsos o automatizados detectados",
-  liveNote: "Se actualiza cada 15 segundos. Las cifras bajas son cifras reales: aquí no hay datos sembrados.",
-  tryT: "Tres cosas para probar", tryS: "Cada una toma menos de un minuto. Deja la consola de operador abierta en otra pestaña y mira cómo cambia.",
-  t1k: "Contado", t1h: "Visita un sitio medido", t1p: "Abre el sitio de ejemplo y navega. Tu navegador obtiene un token de corta duración y luego envía un evento por página. No se guarda ninguna cookie; revisa la pestaña de red.",
-  t1a: "Abrir Demo Wallet", t1b: "Abrir Demo Explorer",
-  t2k: "Rechazado", t2h: "Intenta falsificar una visita", t2p: "El id del sitio es público, como cualquier id de analítica. Úsalo para sumar tráfico desde una terminal:",
-  copy: "Copiar", t2q: "El intento se rechaza y aparece en la consola como evento rechazado, con su motivo.",
-  t3k: "Normalizado", t3h: "Llama a una API con una dirección Stellar", t3p: "La API de ejemplo reporta a Parallax por OpenTelemetry. Llámala con cualquier cuenta:",
-  t3q: "Unos 15 segundos después la consola muestra la ruta de abajo. La dirección nunca se guardó, y la traza tampoco.",
-  keepT: "Qué se guarda y qué nunca se guarda", keepS: "Un servicio de medición es tan confiable como su moderación.",
-  storedT: "Se guarda", s1: "Páginas vistas, visitantes, referentes, duración de sesión, tasa de rebote, país, dispositivo y navegador.",
-  s2: "Cantidad de requests de API, códigos de estado y latencia por ruta normalizada.",
-  s3: "Una clase de tráfico por evento: confiable, baja confianza o automatizado. Los rechazos también se cuentan.",
-  neverT: "Nunca se guarda", n1: "Direcciones IP completas. Se truncan dentro de la puerta de ingesta, antes de que nada más las vea.",
-  n2: "Cookies, ni ningún identificador que siga a un visitante de un proyecto a otro.",
-  n3: "Trazas, spans y logs. El colector deriva los números y descarta el resto.",
-  n4: "Rutas de API en bruto. Cuentas Stellar, contratos, hashes e IDs se convierten en marcadores.",
-  builtT: "Lo construido hoy y lo que financiaría el premio", builtS: "Dicho sin rodeos, para que nadie tenga que adivinar dónde termina el prototipo.",
-  c1: "Área", c2: "Corriendo en este servidor", c3: "Financiado por el premio",
-  r1a: "Analítica web", r1b: "Tracker versionado, sin cookies, sobre Umami sin modificar.", r1c: "Paquete npm, ubicación solo por país, política de retención.",
-  r2a: "Defensa contra inflación", r2b: "Validación de origen, token de navegador, tres clases de tráfico, rechazos contados.", r2c: "Detección de centros de datos, señales de inflación por proyecto, cruce con la actividad en la red.",
-  r3a: "Analítica de API", r3b: "Doble envío por OpenTelemetry, solo agregados, reglas de rutas para identificadores Stellar.", r3c: "gRPC, agregados guardados 36 meses, capacidad para 1.000.000 de requests al día.",
-  r4a: "Aislamiento y acceso", r4b: "Seguridad por fila por proyecto, vista de operador de solo lectura.", r4c: "Inscripción de autoservicio, claves de API de operador.",
-  r5a: "Operación", r5b: "Un nodo en la UE, un comando para desplegar, tests en integración continua.", r5c: "Dos nodos de ingesta, respaldos, infraestructura como código, 12 meses de hosting y soporte, traspaso.",
-  moreT: "Mira más de cerca", l1: "Consola de operador", l1s: "Todos los proyectos, lado a lado", l2: "Mapa de infraestructura", l2s: "A dónde van los datos, en tres idiomas",
-  l3: "API de operador", l3s: "Las mismas cifras en JSON", l4: "El dashboard de un proyecto", l4s: "Lo que ve Demo Wallet: visitantes, referentes, países, dispositivos", l5: "Esta página, medida", l5s: "El dashboard en vivo de la página que estás leyendo",
-  f1: "Parallax es una propuesta de Joaquín Farfán y Anael Casanova para el Stellar Community Fund. Licencia MIT; el código se abre con la postulación.",
-  f2: "Esta página no hace solicitudes a terceros y es medida por el propio Parallax."
+  tag: "un instrumento de medición para proyectos de Stellar",
+  h1: "El uso, medido desde dos lados.",
+  lede1: "Los astrónomos no pueden viajar a una estrella para medir a qué distancia está. La observan dos veces, desde lados opuestos de la órbita de la Tierra, y leen la distancia en cuánto parece moverse. Ese desplazamiento se llama paralaje.",
+  lede2: "El uso real de un proyecto es igual de difícil de alcanzar. Hoy cada equipo informa sus propias cifras y nadie más puede tomar la medida. Parallax lo observa desde dos lados, el sitio web y la API, con un instrumento que el proyecto no controla.",
+  plateTitle: "Dos observadores, un sitio web y una API, miran el mismo objetivo. Contra el fondo, el objetivo aparece en dos lugares distintos.",
+  seenApi: "visto desde la API", seenWeb: "visto desde el sitio web", target: "uso real", obsWeb: "sitio web", obsApi: "API", baseline: "dos observaciones independientes",
+  plateHint: "Mueve el puntero sobre la lámina. Mientras más cerca está el objetivo, más se separan las dos observaciones.", angle: "Ángulo entre observaciones",
+  cta1: "Ver las lecturas en vivo", cta2: "Probarlo tú mismo",
+  stateA: "Prototipo funcionando.", stateB: "Todo lo que se describe aquí corre ahora en este servidor. Aún no es un servicio en producción.",
+  c1h: "Una cifra que nadie más puede comprobar",
+  c1a: "El Stellar Community Fund decide a quién financiar, en parte, según cuánto se usa un proyecto. Esas cifras llegan escritas por los mismos equipos que piden el dinero. Cada uno cuenta a su manera, y a un contador lo puede alimentar un script con la misma facilidad que una persona.",
+  c1b: "SCF pidió, en cambio, un solo instrumento compartido: el mismo para todos los proyectos, gratuito, privado por diseño y difícil de inflar. Esta es nuestra respuesta.",
+  c2h: "Lecturas de este instrumento",
+  colProject: "Proyecto", colViews: "Páginas vistas", colVisitors: "Visitantes", colApi: "Requests de API", colTurned: "Rechazados",
+  readFoot: "Los últimos siete días, leídos de la base de datos cada quince segundos. Las cifras chicas son cifras reales: aquí nada está sembrado. \"Rechazados\" cuenta los eventos falsificados y los automatizados.",
+  c3h: "Toma las lecturas tú mismo",
+  t1v: "Se va a contar", t1h: "Visita un sitio medido", t1p: "Abre uno de los dos sitios de demostración y navega. Tu navegador obtiene un token de corta duración y luego envía un evento por página. No se guarda ninguna cookie; la pestaña de red te lo muestra.",
+  t1a: "Demo Wallet", t1b: "Demo Explorer",
+  t2v: "Se va a rechazar", t2h: "Falsifica una visita", t2p: "El id del sitio es público, como en cualquier herramienta de analítica. Úsalo para sumar una visita desde una terminal:",
+  copy: "Copiar el comando", t2q: "El intento se rechaza y aparece en las lecturas como rechazado, con su motivo.",
+  t3v: "Se va a contar, sin la dirección", t3h: "Llama a una API con una cuenta Stellar", t3p: "La API de demostración informa a Parallax por OpenTelemetry. Llámala con cualquier cuenta:",
+  t3q: "Unos quince segundos después, las lecturas muestran un request más a la ruta de abajo. La cuenta nunca se anotó, y la traza tampoco.",
+  c4h: "Lo que el instrumento se niega a guardar",
+  r1: "Direcciones IP completas. Se recortan dentro de la puerta de ingesta, antes de que nada más las vea. Solo sobrevive el país.",
+  r2: "Cookies, ni ningún identificador que siga a un visitante de un proyecto a otro.",
+  r3: "Trazas, spans y logs. El colector toma los conteos y los tiempos, y desecha el resto.",
+  r4: "Cuentas, contratos y hashes de transacción en las rutas de API. Se reemplazan antes de guardar.",
+  c5h: "Notas de campo, primera tarde en línea",
+  n1: "El instrumento sale en línea en el servidor más chico que se puede arrendar: un núcleo de procesador y dos gigabytes de memoria, en Helsinki.",
+  n2: "Dos minutos después, desconocidos ya le piden a la API de demostración /.env, /wp-config.php y /backup.sql. Cada solicitud se convirtió en una ruta nueva en las lecturas. Cualquiera podría haber inflado así la lista de rutas de un proyecto.",
+  n3: "Corregido. Las solicitudes a rutas que una API no tiene ahora caen en una sola entrada. Un problema que solo el tráfico real podía mostrarnos.",
+  n4: "Un visitante de Países Bajos, en Linux, lee esta página. No sabemos quién es. El prototipo cuenta la visita como confiable; la versión financiada también pesaría la red de la que vino.",
+  n5: "Prueba de carga. Doscientos requests de API por segundo durante cinco minutos: 60.000 enviados, 60.000 guardados, ninguno perdido, en cinco rutas. Ese ritmo es diecisiete veces lo que pidió SCF, y ningún servicio usó más de una vigésima parte del núcleo.",
+  nDate: "16 de noviembre de 2026. Las horas son cuando observamos cada cosa, con unos minutos de margen.",
+  c6h: "Lo construido ahora y lo que construiría el premio",
+  b0a: "Corriendo en este servidor", b0b: "Financiado por el premio",
+  b1: "Sitios web", b1a: "Un tracker versionado y sin cookies, sobre Umami sin modificar.", b1b: "Un paquete npm, ubicación solo por país, una política de retención.",
+  b2: "Inflación", b2a: "Eventos solo desde dominios registrados, con un token que el navegador debe ganarse. Tres clases de tráfico. Rechazos contados.", b2b: "Detección de centros de datos, señales de inflación por proyecto, cruce con la actividad en la red Stellar.",
+  b3: "APIs", b3a: "OpenTelemetry como segundo destino. Solo agregados. Reglas de rutas para identificadores Stellar.", b3b: "gRPC, treinta y seis meses de historia, capacidad probada de un millón de requests al día en producción.",
+  b4: "Acceso", b4a: "Cada proyecto ve solo sus propias filas, y lo impone la base de datos. Una vista de solo lectura entre proyectos.", b4b: "Inscripción de autoservicio y claves de API de operador.",
+  b5: "Operación", b5a: "Un nodo en la Unión Europea, desplegado con un comando, probado en cada cambio.", b5b: "Dos nodos de ingesta, respaldos, infraestructura como código, doce meses de hosting y soporte, y luego un traspaso.",
+  l1: "Las lecturas en vivo, proyecto por proyecto", l2: "Lo que ve un proyecto: el dashboard de Demo Wallet", l3: "Esta página, medida por sí misma", l4: "A dónde van los datos: mapa de infraestructura", l5: "Las mismas lecturas en JSON",
+  f1: "Parallax es una propuesta de Joaquín Farfán y Anael Casanova al Stellar Community Fund, ronda 46, en respuesta a su solicitud de analítica web y de API.",
+  f2: "Licencia MIT. El código se abre con la postulación. Esta página no hace solicitudes a terceros."
 },
 pt: {
-  eyebrow: "Stellar Community Fund #46 · RFP: Web and API Analytics",
-  h1: "Uso que pode ser verificado, não uso que te contam.",
-  lede: "Parallax é um serviço de analítica compartilhado para os projetos que constroem na Stellar. Mede sites e APIs da mesma forma para todos, sem cookies, sem armazenar endereços IP e com defesas contra números inflados.",
-  cta1: "Abrir o console do operador", cta2: "Visitar um site de exemplo medido",
-  statusB: "Protótipo funcionando.", status: "Tudo o que aparece nesta página está rodando agora neste servidor. Ainda não é um serviço em produção.",
-  figStar: "uso real", figWeb: "site", figApi: "API", figBase: "linha de base: duas medições independentes",
-  figCap: "Paralaxe estelar: a distância até uma estrela é medida observando-a de dois pontos. Parallax observa o uso de um projeto a partir do site e da API.",
-  liveT: "Ao vivo a partir desta implantação", liveS: "Os últimos 7 dias, somando todos os projetos inscritos. São os números que um operador da SCF vê.",
-  nProjects: "projetos inscritos", nViews: "páginas vistas contadas", nApi: "requisições de API medidas", nRej: "eventos falsos ou automatizados detectados",
-  liveNote: "Atualiza a cada 15 segundos. Números baixos são números reais: aqui não há dados fabricados.",
-  tryT: "Três coisas para testar", tryS: "Cada uma leva menos de um minuto. Deixe o console do operador aberto em outra aba e veja como muda.",
-  t1k: "Contado", t1h: "Visite um site medido", t1p: "Abra o site de exemplo e navegue. Seu navegador obtém um token de curta duração e depois envia um evento por página. Nenhum cookie é gravado; confira a aba de rede.",
-  t1a: "Abrir Demo Wallet", t1b: "Abrir Demo Explorer",
-  t2k: "Rejeitado", t2h: "Tente falsificar uma visita", t2p: "O id do site é público, como qualquer id de analítica. Use-o para somar tráfego a partir de um terminal:",
-  copy: "Copiar", t2q: "A tentativa é recusada e aparece no console como evento rejeitado, com o motivo.",
-  t3k: "Normalizado", t3h: "Chame uma API com um endereço Stellar", t3p: "A API de exemplo reporta ao Parallax via OpenTelemetry. Chame-a com qualquer conta:",
-  t3q: "Cerca de 15 segundos depois o console mostra a rota abaixo. O endereço nunca foi armazenado, nem o trace.",
-  keepT: "O que é armazenado e o que nunca é", keepS: "Um serviço de medição é tão confiável quanto a sua moderação.",
-  storedT: "Armazenado", s1: "Páginas vistas, visitantes, referenciadores, duração da sessão, taxa de rejeição, país, dispositivo e navegador.",
-  s2: "Contagem de requisições de API, códigos de status e latência por rota normalizada.",
-  s3: "Uma classe de tráfego por evento: confiável, baixa confiança ou automatizado. As rejeições também são contadas.",
-  neverT: "Nunca armazenado", n1: "Endereços IP completos. São truncados dentro do gateway, antes que qualquer outra coisa os veja.",
-  n2: "Cookies, ou qualquer identificador que siga um visitante de um projeto a outro.",
-  n3: "Traces, spans e logs. O coletor deriva os números e descarta o resto.",
-  n4: "Rotas de API em bruto. Contas Stellar, contratos, hashes e IDs viram marcadores.",
-  builtT: "O que está construído hoje e o que o prêmio financiaria", builtS: "Dito sem rodeios, para que ninguém precise adivinhar onde termina o protótipo.",
-  c1: "Área", c2: "Rodando neste servidor", c3: "Financiado pelo prêmio",
-  r1a: "Analítica web", r1b: "Tracker versionado, sem cookies, sobre o Umami sem modificações.", r1c: "Pacote npm, localização apenas por país, política de retenção.",
-  r2a: "Defesa contra inflação", r2b: "Validação de origem, token do navegador, três classes de tráfego, rejeições contadas.", r2c: "Detecção de data centers, sinais de inflação por projeto, cruzamento com a atividade na rede.",
-  r3a: "Analítica de API", r3b: "Envio duplo via OpenTelemetry, apenas agregados, regras de rotas para identificadores Stellar.", r3c: "gRPC, agregados mantidos por 36 meses, capacidade para 1.000.000 de requisições por dia.",
-  r4a: "Isolamento e acesso", r4b: "Segurança por linha por projeto, visão de operador somente leitura.", r4c: "Inscrição por autoatendimento, chaves de API de operador.",
-  r5a: "Operação", r5b: "Um nó na UE, um comando para implantar, testes em integração contínua.", r5c: "Dois nós de ingestão, backups, infraestrutura como código, 12 meses de hospedagem e suporte, transferência.",
-  moreT: "Olhe mais de perto", l1: "Console do operador", l1s: "Todos os projetos, lado a lado", l2: "Mapa de infraestrutura", l2s: "Para onde vão os dados, em três idiomas",
-  l3: "API do operador", l3s: "Os mesmos números em JSON", l4: "O dashboard de um projeto", l4s: "O que a Demo Wallet vê: visitantes, referenciadores, países, dispositivos", l5: "Esta página, medida", l5s: "O dashboard ao vivo da página que você está lendo",
-  f1: "Parallax é uma proposta de Joaquín Farfán e Anael Casanova para o Stellar Community Fund. Licença MIT; o código é aberto com a submissão.",
-  f2: "Esta página não faz requisições a terceiros e é medida pelo próprio Parallax."
+  tag: "um instrumento de medição para projetos da Stellar",
+  h1: "O uso, medido de dois lados.",
+  lede1: "Os astrônomos não podem viajar até uma estrela para medir a que distância ela está. Eles a observam duas vezes, de lados opostos da órbita da Terra, e leem a distância em quanto ela parece se mover. Esse deslocamento se chama paralaxe.",
+  lede2: "O uso real de um projeto é igualmente difícil de alcançar. Hoje cada equipe informa os próprios números e ninguém mais consegue fazer a medição. Parallax o observa de dois lados, o site e a API, com um instrumento que o projeto não controla.",
+  plateTitle: "Dois observadores, um site e uma API, miram o mesmo alvo. Contra o fundo, o alvo aparece em dois lugares diferentes.",
+  seenApi: "visto a partir da API", seenWeb: "visto a partir do site", target: "uso real", obsWeb: "site", obsApi: "API", baseline: "duas observações independentes",
+  plateHint: "Mova o ponteiro sobre a lâmina. Quanto mais perto o alvo, mais as duas observações se afastam.", angle: "Ângulo entre as observações",
+  cta1: "Ver as leituras ao vivo", cta2: "Testar você mesmo",
+  stateA: "Protótipo funcionando.", stateB: "Tudo o que está descrito aqui roda agora neste servidor. Ainda não é um serviço em produção.",
+  c1h: "Um número que ninguém mais pode verificar",
+  c1a: "O Stellar Community Fund decide quem financiar, em parte, por quanto um projeto é usado. Esses números chegam escritos pelas mesmas equipes que pedem o dinheiro. Cada uma conta do seu jeito, e um contador pode ser alimentado por um script com a mesma facilidade que por uma pessoa.",
+  c1b: "A SCF pediu, em vez disso, um único instrumento compartilhado: o mesmo para todos os projetos, gratuito, privado por desenho e difícil de inflar. Esta é a nossa resposta.",
+  c2h: "Leituras deste instrumento",
+  colProject: "Projeto", colViews: "Páginas vistas", colVisitors: "Visitantes", colApi: "Requisições de API", colTurned: "Recusados",
+  readFoot: "Os últimos sete dias, lidos do banco de dados a cada quinze segundos. Números pequenos são números reais: nada aqui é fabricado. \"Recusados\" conta os eventos falsificados e os automatizados.",
+  c3h: "Faça as leituras você mesmo",
+  t1v: "Vai ser contado", t1h: "Visite um site medido", t1p: "Abra um dos dois sites de demonstração e navegue. Seu navegador obtém um token de curta duração e depois envia um evento por página. Nenhum cookie é gravado; a aba de rede mostra isso.",
+  t1a: "Demo Wallet", t1b: "Demo Explorer",
+  t2v: "Vai ser recusado", t2h: "Falsifique uma visita", t2p: "O id do site é público, como em qualquer ferramenta de analítica. Use-o para somar uma visita a partir de um terminal:",
+  copy: "Copiar o comando", t2q: "A tentativa é recusada e aparece nas leituras como recusada, com o motivo.",
+  t3v: "Vai ser contado, sem o endereço", t3h: "Chame uma API com uma conta Stellar", t3p: "A API de demonstração informa o Parallax via OpenTelemetry. Chame-a com qualquer conta:",
+  t3q: "Cerca de quinze segundos depois, as leituras mostram mais uma requisição para a rota abaixo. A conta nunca foi anotada, nem o trace.",
+  c4h: "O que o instrumento se recusa a guardar",
+  r1: "Endereços IP completos. São cortados dentro do gateway, antes que qualquer outra coisa os veja. Só o país sobrevive.",
+  r2: "Cookies, ou qualquer identificador que siga um visitante de um projeto a outro.",
+  r3: "Traces, spans e logs. O coletor pega as contagens e os tempos e descarta o resto.",
+  r4: "Contas, contratos e hashes de transação nas rotas de API. São substituídos antes do armazenamento.",
+  c5h: "Notas de campo, primeira noite no ar",
+  n1: "O instrumento entra no ar no menor servidor que se pode alugar: um núcleo de processador e dois gigabytes de memória, em Helsinque.",
+  n2: "Dois minutos depois, desconhecidos já pedem à API de demonstração /.env, /wp-config.php e /backup.sql. Cada requisição virou uma rota nova nas leituras. Qualquer um poderia ter inflado assim a lista de rotas de um projeto.",
+  n3: "Corrigido. As requisições a rotas que uma API não tem agora caem em uma única entrada. Um problema que só o tráfego real poderia nos mostrar.",
+  n4: "Um visitante dos Países Baixos, no Linux, lê esta página. Não sabemos quem é. O protótipo conta a visita como confiável; a versão financiada também pesaria a rede de onde ela veio.",
+  n5: "Teste de carga. Duzentas requisições de API por segundo durante cinco minutos: 60.000 enviadas, 60.000 armazenadas, nenhuma perdida, em cinco rotas. Esse ritmo é dezessete vezes o que a SCF pediu, e nenhum serviço usou mais de um vigésimo do núcleo.",
+  nDate: "16 de novembro de 2026. Os horários são de quando observamos cada coisa, com alguns minutos de margem.",
+  c6h: "O que está construído e o que o prêmio construiria",
+  b0a: "Rodando neste servidor", b0b: "Financiado pelo prêmio",
+  b1: "Sites", b1a: "Um tracker versionado e sem cookies, sobre o Umami sem modificações.", b1b: "Um pacote npm, localização apenas por país, uma política de retenção.",
+  b2: "Inflação", b2a: "Eventos apenas de domínios registrados, com um token que o navegador precisa conquistar. Três classes de tráfego. Recusas contadas.", b2b: "Detecção de data centers, sinais de inflação por projeto, cruzamento com a atividade na rede Stellar.",
+  b3: "APIs", b3a: "OpenTelemetry como segundo destino. Apenas agregados. Regras de rotas para identificadores Stellar.", b3b: "gRPC, trinta e seis meses de histórico, capacidade comprovada de um milhão de requisições por dia em produção.",
+  b4: "Acesso", b4a: "Cada projeto vê apenas as próprias linhas, e quem impõe isso é o banco de dados. Uma visão somente leitura entre projetos.", b4b: "Inscrição por autoatendimento e chaves de API de operador.",
+  b5: "Operação", b5a: "Um nó na União Europeia, implantado com um comando, testado a cada mudança.", b5b: "Dois nós de ingestão, backups, infraestrutura como código, doze meses de hospedagem e suporte, e depois uma transferência.",
+  l1: "As leituras ao vivo, projeto por projeto", l2: "O que um projeto vê: o dashboard da Demo Wallet", l3: "Esta página, medida por si mesma", l4: "Para onde vão os dados: mapa de infraestrutura", l5: "As mesmas leituras em JSON",
+  f1: "Parallax é uma proposta de Joaquín Farfán e Anael Casanova ao Stellar Community Fund, rodada 46, em resposta ao pedido de analítica web e de API.",
+  f2: "Licença MIT. O código é aberto com a submissão. Esta página não faz requisições a terceiros."
 }};
 
 // English is the text already in the page.
 T.en = {};
-document.querySelectorAll("[data-i]").forEach(function (el) { T.en[el.getAttribute("data-i")] = el.textContent; });
+document.querySelectorAll("[data-i]").forEach(function (el) { T.en[el.getAttribute("data-i")] = el.innerHTML; });
 
 function setLang(l) {
   if (!T[l]) l = "en";
   document.documentElement.lang = l;
   document.querySelectorAll("[data-i]").forEach(function (el) {
     var k = el.getAttribute("data-i");
-    el.textContent = T[l][k] || T.en[k];
+    if (l === "en") el.innerHTML = T.en[k]; else el.textContent = T[l][k] || el.textContent;
   });
   document.querySelectorAll(".langs button").forEach(function (b) {
     b.setAttribute("aria-pressed", b.getAttribute("data-lang") === l ? "true" : "false");
@@ -346,32 +397,82 @@ document.querySelectorAll(".langs button").forEach(function (b) {
   setLang(l);
 })();
 
+// --- the plate: a target sighted from two observers ---------------------------
+(function () {
+  var svg = document.getElementById("plate");
+  var NS = "http://www.w3.org/2000/svg";
+  var L = { x: 290, y: 432 }, R = { x: 710, y: 432 }, SKY = 58, CX = 500;
+
+  // Background stars: fixed, far away, from a seeded generator so the plate is always the same.
+  var seed = 46, field = document.getElementById("field");
+  function rnd() { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return seed / 0x7fffffff; }
+  for (var i = 0; i < 150; i++) {
+    var c = document.createElementNS(NS, "circle");
+    var r = rnd();
+    c.setAttribute("cx", (20 + rnd() * 960).toFixed(1));
+    c.setAttribute("cy", (14 + rnd() * 372).toFixed(1));
+    c.setAttribute("r", (r < 0.85 ? 0.7 + rnd() * 0.7 : 1.5 + rnd() * 1.1).toFixed(2));
+    c.setAttribute("fill", "var(--ink)");
+    c.setAttribute("opacity", (0.25 + rnd() * 0.5).toFixed(2));
+    field.appendChild(c);
+  }
+
+  function set(id, attrs) { var el = document.getElementById(id); for (var k in attrs) el.setAttribute(k, attrs[k]); }
+
+  function draw(y) {
+    y = Math.max(150, Math.min(318, y));
+    var k = (L.y - SKY) / (L.y - y);            // how far each sight line travels past the target
+    var fromWeb = L.x + (CX - L.x) * k;         // where the website's line meets the background
+    var fromApi = R.x + (CX - R.x) * k;
+    set("star", { cx: CX, cy: y });
+    set("tstar", { x: CX + 18, y: y + 6 });
+    set("sl", { x1: L.x, y1: L.y, x2: fromWeb, y2: SKY });
+    set("sr", { x1: R.x, y1: R.y, x2: fromApi, y2: SKY });
+    set("apr", { transform: "translate(" + fromWeb + "," + SKY + ")" });
+    set("apl", { transform: "translate(" + fromApi + "," + SKY + ")" });
+    set("tapr", { x: Math.min(fromWeb, 860) });
+    set("tapl", { x: Math.max(fromApi, 140) });
+    var half = Math.atan((CX - L.x) / (L.y - y));
+    var a = 34, dx = Math.sin(half) * a, dy = Math.cos(half) * a;
+    set("arc", { d: "M" + (CX - dx) + " " + (y + dy) + " A " + a + " " + a + " 0 0 0 " + (CX + dx) + " " + (y + dy) });
+    document.getElementById("p").textContent = (half * 2 * 180 / Math.PI).toFixed(1);
+  }
+  draw(238);
+
+  svg.addEventListener("pointermove", function (e) {
+    var box = svg.getBoundingClientRect();
+    draw(((e.clientY - box.top) / box.height) * 500);
+  });
+})();
+
 document.querySelectorAll("[data-copy]").forEach(function (b) {
   b.addEventListener("click", function () {
     var pre = document.getElementById(b.getAttribute("data-copy"));
-    var text = pre.textContent;
-    (navigator.clipboard ? navigator.clipboard.writeText(text) : Promise.reject()).then(
+    (navigator.clipboard ? navigator.clipboard.writeText(pre.textContent) : Promise.reject()).then(
       function () { var old = b.textContent; b.textContent = "✓"; setTimeout(function () { b.textContent = old; }, 1200); },
       function () { var r = document.createRange(); r.selectNodeContents(pre); var s = getSelection(); s.removeAllRanges(); s.addRange(r); }
     );
   });
 });
 
-var fmt = new Intl.NumberFormat();
+// --- live readings --------------------------------------------------------------
+var fmt = new Intl.NumberFormat("en-US");
+function cell(text, cls) { var td = document.createElement("td"); td.textContent = text; if (cls) td.className = cls; return td; }
 function refresh() {
   fetch("/api/v1/projects?days=7").then(function (r) { return r.ok ? r.json() : null; }).then(function (d) {
     if (!d) return;
-    var views = 0, api = 0, rej = 0;
+    var body = document.getElementById("rows");
+    body.textContent = "";
     d.projects.forEach(function (p) {
-      views += p.web.pageviews;
-      api += p.api ? p.api.calls : 0;
-      rej += p.traffic.rejected + p.traffic.automated;
+      var tr = document.createElement("tr");
+      tr.appendChild(cell(p.name));
+      tr.appendChild(cell(fmt.format(p.web.pageviews)));
+      tr.appendChild(cell(fmt.format(p.web.visitors)));
+      tr.appendChild(cell(p.api ? fmt.format(p.api.calls) : "–"));
+      tr.appendChild(cell(fmt.format(p.traffic.rejected + p.traffic.automated), "turned"));
+      body.appendChild(tr);
     });
-    document.getElementById("n-projects").textContent = fmt.format(d.projects.length);
-    document.getElementById("n-views").textContent = fmt.format(views);
-    document.getElementById("n-api").textContent = fmt.format(api);
-    document.getElementById("n-rej").textContent = fmt.format(rej);
-    document.getElementById("live").hidden = false;
+    document.getElementById("readings").hidden = false;
   }).catch(function () {});
 }
 refresh();
