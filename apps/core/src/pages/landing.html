@@ -44,7 +44,7 @@ h1 { font-weight: 400; font-size: clamp(40px, 7.4vw, 92px); line-height: .98; le
 
 /* the plate */
 .plate { margin: 26px 0 0; border: 1px solid var(--rule); background: var(--deep); position: relative; }
-.plate svg { display: block; width: 100%; height: auto; touch-action: none; cursor: crosshair; }
+.plate svg { display: block; width: 100%; height: auto; }
 .plate text { font-family: var(--serif); font-style: italic; fill: var(--ink); font-size: 17px; }
 .plate .dim { fill: var(--soft); font-size: 15px; }
 .plate-cap { display: flex; justify-content: space-between; gap: 24px; flex-wrap: wrap; padding: 12px 16px; border-top: 1px solid var(--rule); font-style: italic; font-size: 15.5px; color: var(--soft); }
@@ -131,7 +131,7 @@ pre.reply { color: var(--signal); }
     <p class="lede" data-i="lede2">A project's real usage is just as hard to reach. Today each team reports its own numbers, and nobody else can take the reading. Parallax sights it from two sides, the website and the API, with an instrument the project does not control.</p>
 
     <figure class="plate">
-      <svg id="plate" viewBox="0 0 1000 500" role="img" aria-labelledby="plate-title">
+      <svg id="plate" viewBox="0 0 1000 510" role="img" aria-labelledby="plate-title">
         <title id="plate-title" data-i="plateTitle">Two observers, a website and an API, sight the same target. Seen against the background, the target appears in two different places.</title>
         <g id="field"></g>
         <line x1="40" y1="58" x2="960" y2="58" stroke="var(--rule)" stroke-dasharray="2 7"/>
@@ -147,13 +147,14 @@ pre.reply { color: var(--signal); }
         <text id="tstar" x="0" y="0" data-i="target">real usage</text>
         <circle cx="290" cy="432" r="6" fill="var(--ink)"/>
         <circle cx="710" cy="432" r="6" fill="var(--ink)"/>
-        <text x="290" y="472" text-anchor="middle" data-i="obsWeb">website</text>
-        <text x="710" y="472" text-anchor="middle" data-i="obsApi">API</text>
-        <text x="500" y="486" text-anchor="middle" class="dim" data-i="baseline">two independent sightings</text>
+        <text x="290" y="466" text-anchor="middle" data-i="obsWeb">website</text>
+        <text id="rweb" x="290" y="488" text-anchor="middle" class="dim"></text>
+        <text x="710" y="466" text-anchor="middle" data-i="obsApi">API</text>
+        <text id="rapi" x="710" y="488" text-anchor="middle" class="dim"></text>
+        <text x="500" y="424" text-anchor="middle" class="dim" data-i="baseline">two independent sightings</text>
       </svg>
       <figcaption class="plate-cap">
-        <span data-i="plateHint">Move the pointer over the plate. The nearer the target, the further apart the two sightings fall.</span>
-        <span><span data-i="angle">Angle between sightings</span> <b id="p">0</b>°</span>
+        <span data-i="plateHint">One target, sighted twice. The figures under each observer are what this instrument has measured in the last seven days.</span>
       </figcaption>
     </figure>
 
@@ -285,7 +286,7 @@ es: {
   lede2: "El uso real de un proyecto es igual de difícil de alcanzar. Hoy cada equipo informa sus propias cifras y nadie más puede tomar la medida. Parallax lo observa desde dos lados, el sitio web y la API, con un instrumento que el proyecto no controla.",
   plateTitle: "Dos observadores, un sitio web y una API, miran el mismo objetivo. Contra el fondo, el objetivo aparece en dos lugares distintos.",
   seenApi: "visto desde la API", seenWeb: "visto desde el sitio web", target: "uso real", obsWeb: "sitio web", obsApi: "API", baseline: "dos observaciones independientes",
-  plateHint: "Mueve el puntero sobre la lámina. Mientras más cerca está el objetivo, más se separan las dos observaciones.", angle: "Ángulo entre observaciones",
+  plateHint: "Un objetivo, observado dos veces. Las cifras bajo cada observador son lo que este instrumento midió en los últimos siete días.", unitViews: "páginas vistas", unitCalls: "requests",
   cta1: "Ver las lecturas en vivo", cta2: "Probarlo tú mismo",
   stateA: "Prototipo funcionando.", stateB: "Todo lo que se describe aquí corre ahora en este servidor. Aún no es un servicio en producción.",
   c1h: "Una cifra que nadie más puede comprobar",
@@ -331,7 +332,7 @@ pt: {
   lede2: "O uso real de um projeto é igualmente difícil de alcançar. Hoje cada equipe informa os próprios números e ninguém mais consegue fazer a medição. Parallax o observa de dois lados, o site e a API, com um instrumento que o projeto não controla.",
   plateTitle: "Dois observadores, um site e uma API, miram o mesmo alvo. Contra o fundo, o alvo aparece em dois lugares diferentes.",
   seenApi: "visto a partir da API", seenWeb: "visto a partir do site", target: "uso real", obsWeb: "site", obsApi: "API", baseline: "duas observações independentes",
-  plateHint: "Mova o ponteiro sobre a lâmina. Quanto mais perto o alvo, mais as duas observações se afastam.", angle: "Ângulo entre as observações",
+  plateHint: "Um alvo, observado duas vezes. Os números sob cada observador são o que este instrumento mediu nos últimos sete dias.", unitViews: "páginas vistas", unitCalls: "requisições",
   cta1: "Ver as leituras ao vivo", cta2: "Testar você mesmo",
   stateA: "Protótipo funcionando.", stateB: "Tudo o que está descrito aqui roda agora neste servidor. Ainda não é um serviço em produção.",
   c1h: "Um número que ninguém mais pode verificar",
@@ -372,7 +373,7 @@ pt: {
 }};
 
 // English is the text already in the page.
-T.en = {};
+T.en = { unitViews: "page views", unitCalls: "requests" };
 document.querySelectorAll("[data-i]").forEach(function (el) { T.en[el.getAttribute("data-i")] = el.innerHTML; });
 
 function setLang(l) {
@@ -386,6 +387,7 @@ function setLang(l) {
     b.setAttribute("aria-pressed", b.getAttribute("data-lang") === l ? "true" : "false");
   });
   try { localStorage.setItem("parallax-lang", l); } catch (e) {}
+  if (typeof refresh === "function") refresh();
 }
 document.querySelectorAll(".langs button").forEach(function (b) {
   b.addEventListener("click", function () { setLang(b.getAttribute("data-lang")); });
@@ -435,14 +437,8 @@ document.querySelectorAll(".langs button").forEach(function (b) {
     var half = Math.atan((CX - L.x) / (L.y - y));
     var a = 34, dx = Math.sin(half) * a, dy = Math.cos(half) * a;
     set("arc", { d: "M" + (CX - dx) + " " + (y + dy) + " A " + a + " " + a + " 0 0 0 " + (CX + dx) + " " + (y + dy) });
-    document.getElementById("p").textContent = (half * 2 * 180 / Math.PI).toFixed(1);
   }
   draw(238);
-
-  svg.addEventListener("pointermove", function (e) {
-    var box = svg.getBoundingClientRect();
-    draw(((e.clientY - box.top) / box.height) * 500);
-  });
 })();
 
 document.querySelectorAll("[data-copy]").forEach(function (b) {
@@ -461,6 +457,11 @@ function cell(text, cls) { var td = document.createElement("td"); td.textContent
 function refresh() {
   fetch("/api/v1/projects?days=7").then(function (r) { return r.ok ? r.json() : null; }).then(function (d) {
     if (!d) return;
+    var views = 0, calls = 0;
+    d.projects.forEach(function (p) { views += p.web.pageviews; calls += p.api ? p.api.calls : 0; });
+    var L = T[document.documentElement.lang] || {};
+    document.getElementById("rweb").textContent = fmt.format(views) + " " + (L.unitViews || T.en.unitViews);
+    document.getElementById("rapi").textContent = fmt.format(calls) + " " + (L.unitCalls || T.en.unitCalls);
     var body = document.getElementById("rows");
     body.textContent = "";
     d.projects.forEach(function (p) {
