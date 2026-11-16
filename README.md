@@ -10,6 +10,44 @@ Built on [Umami](https://github.com/umami-software/umami) (unmodified, pinned) a
 > repository with one command and is covered by tests. It is not yet a production service; the
 > gaps are listed under "Known limits" and nothing here should be read as more than that.
 
+## Live demo
+
+The prototype is online. Nothing to install.
+
+| | |
+| --- | --- |
+| **Start here** | https://parallax.agentposhq.com |
+| Live readings, every project side by side | https://parallax.agentposhq.com/operator |
+| What a project sees (public dashboard of the demo wallet) | https://parallax.agentposhq.com/share/demowallet |
+| Infrastructure map, in English, Spanish and Portuguese | https://parallax.agentposhq.com/map |
+| Two measured demo sites | https://demo.parallax.agentposhq.com and https://explorer-demo.parallax.agentposhq.com |
+| A Horizon-shaped demo API that reports through OpenTelemetry | https://api-demo.parallax.agentposhq.com |
+| The same readings as JSON | https://parallax.agentposhq.com/api/v1/projects |
+
+Three things to try, with the live readings open in another tab:
+
+**A real visit is counted.** Open https://demo.parallax.agentposhq.com and click around.
+
+**A forged visit is turned away.** The website id is public, like any analytics id:
+
+```sh
+curl -s -X POST https://ingest.parallax.agentposhq.com/e \
+  -H 'Origin: https://demo.parallax.agentposhq.com' \
+  -d '{"type":"event","payload":{"website":"9b3ee96b-f163-462c-a176-1b9a0d3e9fe2","url":"/"}}'
+# {"code":"missing-token","message":"The event has no valid browser token.", ...}
+```
+
+**An API is measured without storing the address.**
+
+```sh
+curl -s https://api-demo.parallax.agentposhq.com/accounts/GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN/payments
+```
+
+About 15 seconds later the readings list one more request to `GET /accounts/{account}/payments`.
+
+The demo runs on one server with 1 shared vCPU and 2 GB of memory. On that server the API path
+took 200 requests per second for five minutes with nothing lost: [load test](docs/load-test.md).
+
 ## What works today
 
 | | |
@@ -22,9 +60,10 @@ Built on [Umami](https://github.com/umami-software/umami) (unmodified, pinned) a
 | **Tenant isolation** | API aggregates are protected by PostgreSQL row-level security: a tenant session can read only its own rows. |
 | **Operator view** | One page, and one JSON endpoint, with every project side by side. |
 
-## Run it
+## Run it on your own machine
 
-Requirements: Docker with Compose. Nothing else.
+Requirements: Docker with Compose. Nothing else. The addresses below are local ones; the public
+demo is in the section above.
 
 ```sh
 cp .env.example .env        # then replace every value with a random secret
@@ -35,14 +74,16 @@ docker compose --profile demo up -d --build
 | --- | --- |
 | http://localhost:8090 and http://localhost:8092 | Two demo websites, one per demo project |
 | http://localhost:8091 | A Horizon-shaped demo API that dual-exports OpenTelemetry |
-| http://localhost:8081/operator | Operator console |
+| http://localhost:8081 | Landing page, with the operator console at `/operator` |
 | http://localhost:3000 | Umami dashboards (user `admin`, password `UMAMI_ADMIN_PASSWORD`) |
 | http://localhost:8080 | Ingest gateway |
 
 Set `PARALLAX_OPERATOR_PUBLIC=true` in `.env` to open the operator console without a key
 (demo only). Otherwise send `Authorization: Bearer $PARALLAX_OPERATOR_KEY`.
 
-## See it in five minutes
+## The same checks, locally
+
+With the stack running on your machine:
 
 **1. A real visit is counted.** Open http://localhost:8090, click a few links, then open the
 operator console. The browser's network tab shows a challenge, a token, and one event per page.
