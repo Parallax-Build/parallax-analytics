@@ -1,4 +1,4 @@
--- Parallax schema. Lives next to Umami's tables in the same database.
+-- Astrolabe schema. Lives next to Umami's tables in the same database.
 -- Idempotent: safe to run on every start.
 
 create schema if not exists parallax;

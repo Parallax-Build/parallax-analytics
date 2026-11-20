@@ -1,4 +1,4 @@
-# Parallax reference stack. One command: `docker compose up -d --build`.
+# Astrolabe reference stack. One command: `docker compose up -d --build`.
 # Add `--profile demo` to also start a sample website and a sample API.
 #
 # Every third-party image is pinned to an exact version. Production pins by

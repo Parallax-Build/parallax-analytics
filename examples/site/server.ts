@@ -1,6 +1,6 @@
 /**
  * Two tiny demo websites, one per demo project, each on its own port so each
- * has its own origin. The page embeds the Parallax tracker with the website id
+ * has its own origin. The page embeds the Astrolabe tracker with the website id
  * of the project and a subresource integrity hash.
  */
 import { createHash } from "node:crypto";
@@ -28,7 +28,7 @@ function page(site: (typeof SITES)[number], websiteId: string, path: string): st
 </head><body>
 <h1>${site.title}</h1>
 <p>${links}</p>
-<p>This page is measured by Parallax. Open the browser's network tab: a challenge, a token, then one event per page view. No cookies are set.</p>
+<p>This page is measured by Astrolabe. Open the browser's network tab: a challenge, a token, then one event per page view. No cookies are set.</p>
 <p>Current page: <code>${path}</code></p>
 <p><button onclick="parallax.track('demo-click', {page: location.pathname})">Send a named event</button></p>
 </body></html>`;

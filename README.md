@@ -1,4 +1,6 @@
-# Parallax
+# Astrolabe
+
+> Named Parallax until 20 November 2026. Internal identifiers (`parallax` schema, `PARALLAX_` variables, `parallax.js`) and the demo addresses keep the old name for now.
 
 Privacy-first web and API analytics for projects building on Stellar. One shared service,
 measured the same way for everyone, so usage numbers do not have to be self-reported.
@@ -55,7 +57,7 @@ took 200 requests per second for five minutes with nothing lost: [load test](doc
 | **Web analytics** | A versioned tracker with no cookies sends page views and named events. Umami stores them and gives each project its dashboard. |
 | **Inflation defense** | Events are accepted only from the domains a project registered, and only with a short-lived token the browser earns by running a computation. A plain `curl` loop is rejected, and the rejection is counted. |
 | **Traffic classes** | Every event is classified as confident, low confidence or automated. Nothing is silently dropped: operators see all classes, and the rejections, per project. |
-| **API analytics** | A project adds Parallax as a second OpenTelemetry destination. The Collector counts requests and durations per route, then drops the traces. Only aggregates are stored. |
+| **API analytics** | A project adds Astrolabe as a second OpenTelemetry destination. The Collector counts requests and durations per route, then drops the traces. Only aggregates are stored. |
 | **Path normalization** | Stellar accounts (`G…`), contracts (`C…`), muxed accounts (`M…`), assets, hashes, UUIDs and numeric IDs are replaced by placeholders before anything is stored. |
 | **Tenant isolation** | API aggregates are protected by PostgreSQL row-level security: a tenant session can read only its own rows. |
 | **Operator view** | One page, and one JSON endpoint, with every project side by side. |
@@ -182,7 +184,7 @@ Named events: `parallax.track("signup", { plan: "free" })`.
 ## Sending API telemetry
 
 Keep your own exporter and add a second one. Only the endpoint and the header are specific to
-Parallax ([`examples/sample-api/otel.cjs`](examples/sample-api/otel.cjs)):
+Astrolabe ([`examples/sample-api/otel.cjs`](examples/sample-api/otel.cjs)):
 
 ```
 endpoint: https://INGEST_HOST/otlp/v1/traces

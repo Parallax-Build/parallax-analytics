@@ -76,7 +76,7 @@ async function handle(req: IncomingMessage, res: ServerResponse): Promise<void> 
   // Collector -> writer. Internal network only, plus a shared key.
   if (req.method === "POST" && path === "/internal/otlp/v1/metrics") {
     if (!same(header(req, "x-internal-key"), internalKey)) {
-      return error(res, 401, "invalid-internal-key", "Unknown caller.", "Only the Parallax Collector may call this endpoint.");
+      return error(res, 401, "invalid-internal-key", "Unknown caller.", "Only the Astrolabe Collector may call this endpoint.");
     }
     const body = await readBody(req, 8 * 1024 * 1024);
     if (!body) return error(res, 413, "body-too-large", "Payload too large.", "Lower the Collector batch size.");

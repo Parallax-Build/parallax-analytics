@@ -60,7 +60,7 @@ export function renderOperatorPage(projects: ProjectSummary[], windowLabel: stri
   return `<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="refresh" content="15">
-<title>Parallax operator console</title>
+<title>Astrolabe operator console</title>
 <style>
 :root{--bg:#F5F6F9;--surface:#fff;--fg:#161B2E;--muted:#5B6278;--line:#C3C8D6;--keep:#0B6B83;--low:#C28A1A;--auto:#7A6FB0;--drop:#B23A30}
 @media (prefers-color-scheme:dark){:root{--bg:#0F1320;--surface:#182033;--fg:#E8EBF3;--muted:#9AA3BA;--line:#34405C;--keep:#5CC4DC;--low:#E2B44C;--auto:#A79DDB;--drop:#F08A7E;color-scheme:dark}}

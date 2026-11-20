@@ -1,6 +1,6 @@
 // A small API shaped like Stellar Horizon. It uses plain `node:http`, so spans
 // carry the raw request path and no route template: the worst case for
-// cardinality, and the case Parallax's path normalization exists for.
+// cardinality, and the case Astrolabe's path normalization exists for.
 const http = require("node:http");
 
 const port = Number(process.env.PORT || 8091);

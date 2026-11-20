@@ -5,7 +5,7 @@
 {$PARALLAX_DOMAIN} {
 	encode gzip
 
-	# Landing page, infrastructure map, operator console and Parallax APIs.
+	# Landing page, infrastructure map, operator console and Astrolabe APIs.
 	@core path / /map /operator /operator/* /api/v1/*
 	handle @core {
 		reverse_proxy core:8081
@@ -16,7 +16,7 @@
 	@collection path /api/send /api/batch /script.js
 	handle @collection {
 		header Content-Type "application/json; charset=utf-8"
-		respond `{"code":"direct-collection-disabled","message":"Events are accepted only through the Parallax ingest gateway.","hint":"Use the Parallax tracker; see the README."}` 403
+		respond `{"code":"direct-collection-disabled","message":"Events are accepted only through the Astrolabe ingest gateway.","hint":"Use the Astrolabe tracker; see the README."}` 403
 	}
 
 	# Everything else: Umami dashboards.

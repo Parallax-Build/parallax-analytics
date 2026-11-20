@@ -37,7 +37,7 @@ export async function renderLanding(pool: pg.Pool, config: LandingConfig): Promi
   const explorer = find("demo-explorer");
   const self = find("parallax");
 
-  // The landing page is itself a Parallax tenant, when one is enrolled for it.
+  // The landing page is itself a Astrolabe tenant, when one is enrolled for it.
   const trackerTag = self
     ? `<script defer src="${esc(config.ingestUrl)}/v/${TRACKER_VERSION}/parallax.js" data-website="${esc(self.website_id)}" integrity="${integrity}" crossorigin="anonymous"></script>`
     : "";

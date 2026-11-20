@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Parallax: usage, measured from two sides</title>
+<title>Astrolabe: usage, measured from two sides</title>
 <meta name="description" content="A shared instrument that measures how much a Stellar project is really used, from its website and from its API. A working prototype you can test yourself.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230E2A52'/%3E%3Cpath d='M6 26 16 7l10 19' fill='none' stroke='%23EAF0FA' stroke-width='1.6'/%3E%3Ccircle cx='16' cy='7' r='3' fill='%23E3B04B'/%3E%3C/svg%3E">
 {{TRACKER_TAG}}
@@ -117,7 +117,7 @@ pre.reply { color: var(--signal); }
 <body>
 <div class="sheet">
   <header class="mast">
-    <div class="name">Parallax <small data-i="tag">a measuring instrument for Stellar projects</small></div>
+    <div class="name">Astrolabe <small data-i="tag">a measuring instrument for Stellar projects</small></div>
     <div class="langs" role="group" aria-label="Language">
       <button type="button" data-lang="en">English</button>
       <button type="button" data-lang="es">Español</button>
@@ -127,8 +127,8 @@ pre.reply { color: var(--signal); }
 
   <section class="opening">
     <h1 data-i="h1">Usage, measured from two sides.</h1>
-    <p class="lede" data-i="lede1">Astronomers cannot travel to a star to measure how far it is. They sight it twice, from opposite sides of Earth's orbit, and read the distance from how much it appears to move. That shift is called parallax.</p>
-    <p class="lede" data-i="lede2">A project's real usage is just as hard to reach. Today each team reports its own numbers, and nobody else can take the reading. Parallax sights it from two sides, the website and the API, with an instrument the project does not control.</p>
+    <p class="lede" data-i="lede1">For centuries, navigators and astronomers took the height of a star with an astrolabe: one instrument, the same reading for whoever held it. Nobody had to take the other's word for it.</p>
+    <p class="lede" data-i="lede2">A project's real usage is just as hard to reach. Today each team reports its own numbers, and nobody else can take the reading. Astrolabe sights it from two sides, the website and the API, with an instrument the project does not control.</p>
 
     <figure class="plate">
       <svg id="plate" viewBox="0 0 1000 510" role="img" aria-labelledby="plate-title">
@@ -208,7 +208,7 @@ pre.reply { color: var(--signal); }
         <div class="trial">
           <p class="verdict" data-i="t3v">It will be counted, without the address</p>
           <h3 data-i="t3h">Call an API with a Stellar account</h3>
-          <p data-i="t3p">The demonstration API reports to Parallax through OpenTelemetry. Call it with any account:</p>
+          <p data-i="t3p">The demonstration API reports to Astrolabe through OpenTelemetry. Call it with any account:</p>
           <pre id="curl2">curl -s {{API_DEMO}}/accounts/GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN/payments</pre>
           <button class="copy" type="button" data-copy="curl2" data-i="copy">Copy the command</button>
           <p data-i="t3q">About fifteen seconds later the readings list one more request to the route below. The account was never written down, and neither was the trace.</p>
@@ -271,7 +271,7 @@ GET /accounts/<b>{account}</b>/payments</pre>
       <li><a href="/api/v1/projects" data-i="l5">The same readings as JSON</a></li>
     </ul>
     <div>
-      <p data-i="f1">Parallax is a proposal by Joaquín Farfán and Anael Casanova to the Stellar Community Fund, round 46, in answer to its request for web and API analytics.</p>
+      <p data-i="f1">Astrolabe is a proposal by Joaquín Farfán and Anael Casanova to the Stellar Community Fund, round 46, in answer to its request for web and API analytics.</p>
       <p style="margin-top:10px" data-i="f2">MIT licensed. The source is public: <a href="https://github.com/Parallax-Build/parallax-analytics">github.com/Parallax-Build/parallax-analytics</a>. This page makes no third-party requests.</p>
     </div>
   </footer>
@@ -282,8 +282,8 @@ var T = {
 es: {
   tag: "un instrumento de medición para proyectos de Stellar",
   h1: "El uso, medido desde dos lados.",
-  lede1: "Los astrónomos no pueden viajar a una estrella para medir a qué distancia está. La observan dos veces, desde lados opuestos de la órbita de la Tierra, y leen la distancia en cuánto parece moverse. Ese desplazamiento se llama paralaje.",
-  lede2: "El uso real de un proyecto es igual de difícil de alcanzar. Hoy cada equipo informa sus propias cifras y nadie más puede tomar la medida. Parallax lo observa desde dos lados, el sitio web y la API, con un instrumento que el proyecto no controla.",
+  lede1: "Durante siglos, navegantes y astrónomos midieron la altura de una estrella con un astrolabio: un solo instrumento, la misma lectura para quien lo sostuviera. Nadie tenía que creerle al otro.",
+  lede2: "El uso real de un proyecto es igual de difícil de alcanzar. Hoy cada equipo informa sus propias cifras y nadie más puede tomar la medida. Astrolabe lo observa desde dos lados, el sitio web y la API, con un instrumento que el proyecto no controla.",
   plateTitle: "Dos observadores, un sitio web y una API, miran el mismo objetivo. Contra el fondo, el objetivo aparece en dos lugares distintos.",
   seenApi: "visto desde la API", seenWeb: "visto desde el sitio web", target: "uso real", obsWeb: "sitio web", obsApi: "API", baseline: "dos observaciones independientes",
   plateHint: "Un objetivo, observado dos veces. Las cifras bajo cada observador son lo que este instrumento midió en los últimos siete días.", unitViews: "páginas vistas", unitCalls: "requests",
@@ -300,7 +300,7 @@ es: {
   t1a: "Demo Wallet", t1b: "Demo Explorer",
   t2v: "Se va a rechazar", t2h: "Falsifica una visita", t2p: "El id del sitio es público, como en cualquier herramienta de analítica. Úsalo para sumar una visita desde una terminal:",
   copy: "Copiar el comando", t2q: "El intento se rechaza y aparece en las lecturas como rechazado, con su motivo.",
-  t3v: "Se va a contar, sin la dirección", t3h: "Llama a una API con una cuenta Stellar", t3p: "La API de demostración informa a Parallax por OpenTelemetry. Llámala con cualquier cuenta:",
+  t3v: "Se va a contar, sin la dirección", t3h: "Llama a una API con una cuenta Stellar", t3p: "La API de demostración informa a Astrolabe por OpenTelemetry. Llámala con cualquier cuenta:",
   t3q: "Unos quince segundos después, las lecturas muestran un request más a la ruta de abajo. La cuenta nunca se anotó, y la traza tampoco.",
   c4h: "Lo que el instrumento se niega a guardar",
   r1: "Direcciones IP completas. Se recortan dentro de la puerta de ingesta, antes de que nada más las vea. Solo sobrevive el país.",
@@ -322,14 +322,14 @@ es: {
   b4: "Acceso", b4a: "Cada proyecto ve solo sus propias filas, y lo impone la base de datos. Una vista de solo lectura entre proyectos.", b4b: "Inscripción de autoservicio y claves de API de operador.",
   b5: "Operación", b5a: "Un nodo en la Unión Europea, desplegado con un comando, probado en cada cambio.", b5b: "Dos nodos de ingesta, respaldos, infraestructura como código, doce meses de hosting y soporte, y luego un traspaso.",
   l1: "Las lecturas en vivo, proyecto por proyecto", l2: "Lo que ve un proyecto: el dashboard de Demo Wallet", l3: "Esta página, medida por sí misma", l4: "A dónde van los datos: mapa de infraestructura", l5: "Las mismas lecturas en JSON",
-  f1: "Parallax es una propuesta de Joaquín Farfán y Anael Casanova al Stellar Community Fund, ronda 46, en respuesta a su solicitud de analítica web y de API.",
+  f1: "Astrolabe es una propuesta de Joaquín Farfán y Anael Casanova al Stellar Community Fund, ronda 46, en respuesta a su solicitud de analítica web y de API.",
   f2: "Licencia MIT. El código es público: <a href='https://github.com/Parallax-Build/parallax-analytics'>github.com/Parallax-Build/parallax-analytics</a>. Esta página no hace solicitudes a terceros."
 },
 pt: {
   tag: "um instrumento de medição para projetos da Stellar",
   h1: "O uso, medido de dois lados.",
-  lede1: "Os astrônomos não podem viajar até uma estrela para medir a que distância ela está. Eles a observam duas vezes, de lados opostos da órbita da Terra, e leem a distância em quanto ela parece se mover. Esse deslocamento se chama paralaxe.",
-  lede2: "O uso real de um projeto é igualmente difícil de alcançar. Hoje cada equipe informa os próprios números e ninguém mais consegue fazer a medição. Parallax o observa de dois lados, o site e a API, com um instrumento que o projeto não controla.",
+  lede1: "Durante séculos, navegadores e astrônomos mediram a altura de uma estrela com um astrolábio: um único instrumento, a mesma leitura para quem o segurasse. Ninguém precisava acreditar na palavra do outro.",
+  lede2: "O uso real de um projeto é igualmente difícil de alcançar. Hoje cada equipe informa os próprios números e ninguém mais consegue fazer a medição. Astrolabe o observa de dois lados, o site e a API, com um instrumento que o projeto não controla.",
   plateTitle: "Dois observadores, um site e uma API, miram o mesmo alvo. Contra o fundo, o alvo aparece em dois lugares diferentes.",
   seenApi: "visto a partir da API", seenWeb: "visto a partir do site", target: "uso real", obsWeb: "site", obsApi: "API", baseline: "duas observações independentes",
   plateHint: "Um alvo, observado duas vezes. Os números sob cada observador são o que este instrumento mediu nos últimos sete dias.", unitViews: "páginas vistas", unitCalls: "requisições",
@@ -346,7 +346,7 @@ pt: {
   t1a: "Demo Wallet", t1b: "Demo Explorer",
   t2v: "Vai ser recusado", t2h: "Falsifique uma visita", t2p: "O id do site é público, como em qualquer ferramenta de analítica. Use-o para somar uma visita a partir de um terminal:",
   copy: "Copiar o comando", t2q: "A tentativa é recusada e aparece nas leituras como recusada, com o motivo.",
-  t3v: "Vai ser contado, sem o endereço", t3h: "Chame uma API com uma conta Stellar", t3p: "A API de demonstração informa o Parallax via OpenTelemetry. Chame-a com qualquer conta:",
+  t3v: "Vai ser contado, sem o endereço", t3h: "Chame uma API com uma conta Stellar", t3p: "A API de demonstração informa o Astrolabe via OpenTelemetry. Chame-a com qualquer conta:",
   t3q: "Cerca de quinze segundos depois, as leituras mostram mais uma requisição para a rota abaixo. A conta nunca foi anotada, nem o trace.",
   c4h: "O que o instrumento se recusa a guardar",
   r1: "Endereços IP completos. São cortados dentro do gateway, antes que qualquer outra coisa os veja. Só o país sobrevive.",
@@ -368,7 +368,7 @@ pt: {
   b4: "Acesso", b4a: "Cada projeto vê apenas as próprias linhas, e quem impõe isso é o banco de dados. Uma visão somente leitura entre projetos.", b4b: "Inscrição por autoatendimento e chaves de API de operador.",
   b5: "Operação", b5a: "Um nó na União Europeia, implantado com um comando, testado a cada mudança.", b5b: "Dois nós de ingestão, backups, infraestrutura como código, doze meses de hospedagem e suporte, e depois uma transferência.",
   l1: "As leituras ao vivo, projeto por projeto", l2: "O que um projeto vê: o dashboard da Demo Wallet", l3: "Esta página, medida por si mesma", l4: "Para onde vão os dados: mapa de infraestrutura", l5: "As mesmas leituras em JSON",
-  f1: "Parallax é uma proposta de Joaquín Farfán e Anael Casanova ao Stellar Community Fund, rodada 46, em resposta ao pedido de analítica web e de API.",
+  f1: "Astrolabe é uma proposta de Joaquín Farfán e Anael Casanova ao Stellar Community Fund, rodada 46, em resposta ao pedido de analítica web e de API.",
   f2: "Licença MIT. O código é público: <a href='https://github.com/Parallax-Build/parallax-analytics'>github.com/Parallax-Build/parallax-analytics</a>. Esta página não faz requisições a terceiros."
 }};
 

@@ -1,4 +1,4 @@
-# One image for every Parallax service. TypeScript runs directly on Node 24
+# One image for every Astrolabe service. TypeScript runs directly on Node 24
 # (type stripping), so there is no build step and no compiled output to drift.
 FROM node:24-alpine
 

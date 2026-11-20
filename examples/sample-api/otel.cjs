@@ -1,7 +1,7 @@
 // OpenTelemetry setup for the sample API. Loaded with `node --require`.
 //
-// A real project keeps its own exporter and adds Parallax as a second one
-// ("dual export"). The only Parallax-specific parts are the endpoint and the
+// A real project keeps its own exporter and adds Astrolabe as a second one
+// ("dual export"). The only Astrolabe-specific parts are the endpoint and the
 // Authorization header.
 const { NodeTracerProvider } = require("@opentelemetry/sdk-trace-node");
 const { BatchSpanProcessor } = require("@opentelemetry/sdk-trace-base");

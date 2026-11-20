@@ -3,7 +3,7 @@ import type { Classifier, TrafficClass } from "./classify.ts";
 import { clientIp, truncateIp } from "./ip.ts";
 import { checkWork, issueChallenge, issueToken, sha256Hex, verifyChallenge, verifyToken } from "./tokens.ts";
 
-/** A project enrolled in Parallax. */
+/** A project enrolled in Astrolabe. */
 export interface Tenant {
   id: string;
   name: string;
@@ -136,7 +136,7 @@ function optionalString(value: unknown, max: number): string | undefined {
  */
 function bindOrigin(deps: GatewayDeps, req: IncomingMessage, website: unknown): { tenant: Tenant; origin: string } {
   if (typeof website !== "string" || !UUID.test(website)) {
-    throw fail(400, "invalid-website", "The website id is missing or is not a UUID.", "Use the id from your Parallax dashboard.");
+    throw fail(400, "invalid-website", "The website id is missing or is not a UUID.", "Use the id from your Astrolabe dashboard.");
   }
   const tenant = deps.tenantByWebsite(website);
   if (!tenant) {
@@ -197,7 +197,7 @@ async function handleEvent(deps: GatewayDeps, req: IncomingMessage, res: ServerR
   const body = await readJson(req);
   const input = body["payload"];
   if (body["type"] !== "event" || input === null || typeof input !== "object" || Array.isArray(input)) {
-    throw fail(400, "invalid-event", "The body must be { type: \"event\", payload: { ... } }.", "Use the Parallax tracker, or follow its format.");
+    throw fail(400, "invalid-event", "The body must be { type: \"event\", payload: { ... } }.", "Use the Astrolabe tracker, or follow its format.");
   }
   const payloadIn = input as Record<string, unknown>;
   const { tenant, origin } = bindOrigin(deps, req, payloadIn["website"]);

@@ -2,7 +2,7 @@
  * Hard-coded path normalization rules.
  *
  * One rule set, two consumers: the OpenTelemetry Collector (Go RE2 regular
- * expressions, through the OTTL `replace_pattern` function) and the Parallax
+ * expressions, through the OTTL `replace_pattern` function) and the Astrolabe
  * writer (JavaScript). Every pattern must therefore be valid in both engines:
  * no lookaround, no backreferences. `\b` is the only boundary used.
  *

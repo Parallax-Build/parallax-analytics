@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "license": "MIT",
-  "description": "A Horizon-shaped sample API that dual-exports OpenTelemetry traces to Parallax.",
+  "description": "A Horizon-shaped sample API that dual-exports OpenTelemetry traces to Astrolabe.",
   "dependencies": {
     "@opentelemetry/api": "^1.9.0",
     "@opentelemetry/exporter-trace-otlp-http": "^0.57.0",
